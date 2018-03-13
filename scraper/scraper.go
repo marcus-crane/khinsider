@@ -1,4 +1,4 @@
-package main
+package scraper
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
-func main() {
-	resp, err := http.Get("https://downloads.khinsider.com/game-soundtracks/album/cowboy-bebop-original-soundtrack-1")
+func ScrapeAlbum(url string) {
+	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
 	}
@@ -29,6 +29,6 @@ func main() {
 	}
 	songs := scrape.FindAll(root, matcher)
 	for i, song := range songs {
-		fmt.Printf("%2d %s (%s)\n", i, scrape.Text(song), scrape.Attr(song, "href"))
+		fmt.Printf("%2d %s (%s)\n", i+1, scrape.Text(song), scrape.Attr(song, "href"))
 	}
 }
