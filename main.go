@@ -3,14 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"os/user"
 	"strings"
 
 	"github.com/urfave/cli"
 	"github.com/yhat/scrape"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"gopkg.in/cheggaaa/pb.v2"
 )
 
 type Album struct {
@@ -23,13 +26,13 @@ type Track struct {
 	Link   string
 }
 
-func ScrapeAlbum(url string) *Album {
+func scrapeAlbum(url string) *Album {
 	resp, err := http.Get("https://downloads.khinsider.com/game-soundtracks/album/" + url)
 	if err != nil {
 		panic(err)
 	}
 	// No 404s, only 200 redirect to homepage
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		return nil
 	}
 	root, err := html.Parse(resp.Body)
@@ -54,6 +57,53 @@ func ScrapeAlbum(url string) *Album {
 	return &album
 }
 
+func pullAudioStream(url string) string {
+	resp, err := http.Get("https://downloads.khinsider.com" + url)
+	if err != nil {
+		panic(err)
+	}
+	root, err := html.Parse(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	matcher := func(n *html.Node) bool {
+		if n.DataAtom == atom.Audio {
+			return true
+		}
+		return false
+	}
+	stream, _ := scrape.Find(root, matcher)
+	return scrape.Attr(stream, "src")
+}
+
+func downloadFile(filepath string, url string) (err error) {
+	writer, err := os.Create(filepath)
+	if err != nil {
+		panic(err)
+	}
+	defer writer.Close()
+
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Uh oh, failed to fetch: %s", resp.Status)
+	}
+	defer resp.Body.Close()
+
+	bar := pb.ProgressBarTemplate(`{{ counters . }} {{ bar . "[" "=" (rnd "" ) "-" "]"}} {{speed . }}`).Start64(resp.ContentLength)
+	bar.Start()
+
+	reader := bar.NewProxyReader(resp.Body)
+
+	io.Copy(writer, reader)
+	bar.Finish()
+	return nil
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "khinsider"
@@ -61,14 +111,23 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		album := c.Args().Get(0)
 		if album != "" {
-			queryResults := ScrapeAlbum(album)
+			queryResults := scrapeAlbum(album)
 			if queryResults == nil {
 				err := errors.New("sorry, that album doesn't seem to exist")
 				panic(err)
 			}
+			usr, err := user.Current()
+			if err != nil {
+				panic(err)
+			}
+			os.Mkdir(usr.HomeDir+"/Downloads/"+album, 0755)
+			fmt.Printf("Created %s\n\n", usr.HomeDir+"/Downloads/"+album)
 			for i := range queryResults.Tracks {
 				track := queryResults.Tracks[i]
-				fmt.Printf("%02d %s\n", track.Number, track.Title)
+				track.Link = pullAudioStream(track.Link)
+				fmt.Printf("Downloading %02d %s\n", track.Number, track.Title)
+				filePath := fmt.Sprintf(usr.HomeDir+"/Downloads/%s/%02d %s.mp3", album, track.Number, track.Title)
+				downloadFile(filePath, track.Link)
 			}
 			return nil
 		}
