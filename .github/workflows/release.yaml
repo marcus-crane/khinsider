@@ -1,0 +1,21 @@
+on:
+  release:
+    types: [created]
+
+jobs:
+  release-matrix:
+    name: release khinsider binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: wangyoucao577/go-release-action@v1.12
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: "https://golang.org/dl/go1.16beta1.linux-amd64.tar.gz"
+        binary_name: "khinsider"
