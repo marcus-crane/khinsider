@@ -4,7 +4,12 @@
 
 A usable but fairly featureless khinsider downloader written in Go. I use it myself but I need to clean up the code and write some more docs
 
----
+### Table of Contents
+* [Usage](#usage)
+* [Installation](#installation)
+  * [Prebuilt binaries](#prebuilt-binaries)
+  * [Compiling from source](#compiling-from-source)
+* [Special thanks](#special-thanks)
 
 # Usage
 
@@ -30,9 +35,9 @@ While both of these options will provide a binary in the download/compile direct
 
 That way, you can access it going forward by just running `khinsider` and not having to specify eg; `~/Downloads/khinsider`
 
-## [Pre-built binaries](https://github.com/marcus-crane/khinsider/releases)
+## Prebuilt binaries
 
-Personally, I don't get off on the idea of compiling software so thanks to Github Actions, each release is already prebuilt and ready to go.
+Personally, I don't get off on the idea of compiling software so thanks to Github Actions, each release is already prebuilt and ready to go [on the releases page](https://github.com/marcus-crane/khinsider/releases).
 
 I've provided builds for Windows, macOS and Linux, which contains a mix of both `x86` and `arm` binaries.
 
