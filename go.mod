@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli/v2 v2.3.0
 	github.com/yhat/scrape v0.0.0-20161128144610-24b7890b0945
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
