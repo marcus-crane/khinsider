@@ -29,11 +29,21 @@ There are no options for providing a download directory or anything like that bu
 
 # Installation
 
-There are two options for installing `khinsider`.
+There are three options for installing `khinsider`.
 
-While both of these options will provide a binary in the download/compile directory, I recommend moving it to somewhere in your `PATH` such as `/usr/local/bin/khinsider`.
+Using `go install` is the easiest and won't require any further fiddling out assuming that your `GOPATH` and the like are all set up.
+
+The later two will provide a binary in the download/compile director that, I recommend moving it to somewhere in your `PATH` such as `/usr/local/bin/khinsider`.
 
 That way, you can access it going forward by just running `khinsider` and not having to specify eg; `~/Downloads/khinsider`
+
+## Installing with Go
+
+You can install the latest build of `khinsider` with the following:
+
+```go
+go install github.com/marcus-crane/khinsider@latest
+```
 
 ## Prebuilt binaries
 
