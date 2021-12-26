@@ -1,8 +1,7 @@
 name: "Update khinsider index"
 on:
-  [push]
-  #schedule:
-  #- cron: "0 * * * *"
+  schedule:
+  - cron: "0 * * * *"
 
 jobs:
   index-sync:
