@@ -15,11 +15,11 @@ jobs:
         with:
           go-version: 1.17.2
       - run: go mod download
-      - run: go run main.go --debug index
+      - run: go run main.go index
       - uses: popsiclestick/gist-sync-action@v1.2.0
         id: sync
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gist_url: https://gist.github.com/marcus-crane/7b27c3b2772115ce7dbb7be792a7ad75
           gist_title: index.json
-          github_file: ~/.khinsider/index.json
+          github_file: /home/runner/.khinsider/index.json
