@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 
 	"github.com/marcus-crane/khinsider/pkg/indexer"
@@ -14,22 +16,58 @@ import (
 
 func Execute() {
 	app := &cli.App{
-		Name:    "khinsider",
-		Usage:   "easily fetch videogame soundtracks from khinsider.com",
-		Version: "2.0.0",
+		Name:     "khinsider",
+		Version:  "2.0.0",
+		Compiled: time.Now(),
+		Authors: []*cli.Author{
+			{
+				Name:  "Marcus Crane",
+				Email: "khinsider@utf9k.net",
+			},
+		},
+		Usage: "khinsider - easily fetch videogame soundtracks from downloads.khinsider.com",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}},
+		},
+		Before: func(c *cli.Context) error {
+			if c.Bool("debug") {
+				pterm.EnableDebugMessages()
+			}
+			return nil
+		},
 		Commands: []*cli.Command{
 			{
 				Name:    "search",
 				Aliases: []string{"s"},
 				Usage:   "search for an album to download",
+				Before: func(c *cli.Context) error {
+					indexExists := indexer.CheckIndexExists()
+					if indexExists {
+						pterm.Debug.Println("Checking for updates")
+						updateAvailable := indexer.CheckIndexUpdateAvailable()
+						if updateAvailable {
+							err := indexer.DownloadIndex()
+							if err != nil {
+								return err
+							}
+						}
+						return nil
+					}
+					pterm.Warning.Println("Search index doesn't exist! Fetching the latest version.")
+					err := indexer.DownloadIndex()
+					if err != nil {
+						return err
+					}
+					return nil
+				},
 				Action: func(c *cli.Context) error {
-					results, err := indexer.LoadIndex()
+					results, err := indexer.LoadLocalIndex()
 					if err != nil {
 						panic(err)
 					}
 					_, err = search.FilterAlbumList(results)
 					if err != nil {
-						panic(err)
+						pterm.Info.Println("Goodbye")
 					}
 					return nil
 				},

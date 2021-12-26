@@ -5,8 +5,10 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/pterm/pterm"
 
 	"github.com/marcus-crane/khinsider/pkg/types"
 )
@@ -47,9 +49,9 @@ func GetResultsForLetter(letter string) (types.SearchResults, error) {
 	doc.Find("#EchoTopic p[align='left'] a").Each(func(i int, s *goquery.Selection) {
 		title := s.Text()
 		results[title] = "#"
-		url, exists := s.Attr("href")
+		trackUrl, exists := s.Attr("href")
 		if exists {
-			results[title] = url
+			results[title] = trackUrl
 		} else {
 			results[title] = "#"
 		}
@@ -59,8 +61,8 @@ func GetResultsForLetter(letter string) (types.SearchResults, error) {
 
 func DownloadAlbum(slug string) (types.Album, error) {
 	var album types.Album
-	url := fmt.Sprintf("%s%s", AlbumBase, slug)
-	res, err := DownloadPage(url)
+	albumUrl := fmt.Sprintf("%s%s", AlbumBase, slug)
+	res, err := DownloadPage(albumUrl)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
@@ -95,8 +97,69 @@ func DownloadAlbum(slug string) (types.Album, error) {
 			album.FlacFileSize = s.Text()
 		}
 	})
-	doc.Find("#songlist .clickable-row:not([align])").Each(func(i int, s *goquery.Selection) {
-		//fmt.Println(s.Text())
+	flacLabel := ""
+	if album.FlacAvailable {
+		flacLabel = "[FLAC]"
+	}
+	pterm.Info.Printfln(
+		"Found %s (%d tracks) %s %s",
+		album.Name,
+		album.FileCount,
+		"[MP3]",
+		flacLabel)
+	_ = doc.Find("#EchoTopic table:not(#songList) tr div a").Each(func(i int, s *goquery.Selection) {
+		coverUrl, exists := s.Attr("href")
+		if exists {
+			// TODO: Use proper escaping. Tried stdlib but it escaped everything
+			coverUrl = strings.ReplaceAll(coverUrl, " ", "%20")
+			album.Covers = append(album.Covers, coverUrl)
+		}
+	})
+	songMeta := make(map[int]string)
+	_ = doc.Find("#songlist_header th").Each(func(i int, s *goquery.Selection) {
+		header := strings.TrimSpace(s.Text())
+		if header == "CD" {
+			songMeta[i] = "CD"
+		}
+		if header == "#" {
+			songMeta[i] = "TrackNumber"
+		}
+		if header == "Song Name" {
+			songMeta[i] = "SongName"
+		}
+		if header == "MP3" {
+			songMeta[i] = "TrackLength"
+			songMeta[i+1] = "MP3FileSize"
+		}
+		if header == "FLAC" {
+			songMeta[i+1] = "FlacFileSize"
+		}
+	})
+	fmt.Println(songMeta)
+	doc.Find("#songlist tr:not(#songlist_header, #songlist_footer)").Each(func(i int, s *goquery.Selection) {
+		var track types.Track
+		s.Find("td").Each(func(i int, s *goquery.Selection) {
+			if songMeta[i] == "CD" {
+				track.CDNumber = strings.TrimSpace(s.Text())
+			}
+			if songMeta[i] == "TrackNumber" {
+				track.Number = strings.TrimSpace(s.Text())
+			}
+			if songMeta[i] == "SongName" {
+				track.Name = strings.TrimSpace(s.Text())
+			}
+			if songMeta[i] == "TrackLength" {
+				track.Duration = strings.TrimSpace(s.Text())
+			}
+			if songMeta[i] == "MP3FileSize" {
+				track.MP3FileSize = strings.TrimSpace(s.Text())
+			}
+			if songMeta[i] == "FlacFileSize" {
+				track.FlacFileSize = strings.TrimSpace(s.Text())
+			}
+		})
+		fmt.Println(track)
+		album.Tracks = append(album.Tracks, track)
 	})
 	return album, nil
 }

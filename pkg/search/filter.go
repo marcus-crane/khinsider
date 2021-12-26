@@ -1,7 +1,6 @@
 package search
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -25,11 +24,10 @@ func FilterAlbumList(list types.SearchResults) (string, error) {
 	var result string
 	err := survey.AskOne(prompt, &result, survey.WithPageSize(15))
 
-	pterm.Info.Printf("Selected %s\n", result)
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
 		return "", err
 	}
+
+	pterm.Info.Printf("Selected %s\n", result)
 	return result, nil
 }
