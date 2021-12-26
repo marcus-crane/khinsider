@@ -1,7 +1,7 @@
 package khinsider
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"os"
 	"time"
@@ -9,6 +9,7 @@ import (
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 
+	"github.com/marcus-crane/khinsider/pkg/download"
 	"github.com/marcus-crane/khinsider/pkg/indexer"
 	"github.com/marcus-crane/khinsider/pkg/scrape"
 	"github.com/marcus-crane/khinsider/pkg/search"
@@ -77,11 +78,16 @@ func Execute() {
 				Aliases: []string{"a"},
 				Usage:   "download an album given a slug",
 				Action: func(c *cli.Context) error {
-					tracks, err := scrape.DownloadAlbum(c.Args().First())
+					albumSlug := c.Args().First()
+					if albumSlug == "" {
+						pterm.Error.Println("Please enter the slug for a valid album")
+						return errors.New("no album slug provided")
+					}
+					album, err := scrape.DownloadAlbum(albumSlug)
 					if err != nil {
 						panic(err)
 					}
-					fmt.Println(tracks)
+					download.GetAlbum(&album)
 					return nil
 				},
 			},
