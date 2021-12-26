@@ -7,6 +7,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/marcus-crane/khinsider/pkg/indexer"
 	"github.com/marcus-crane/khinsider/pkg/scrape"
 	"github.com/marcus-crane/khinsider/pkg/search"
 )
@@ -22,7 +23,7 @@ func Execute() {
 				Aliases: []string{"s"},
 				Usage:   "search for an album to download",
 				Action: func(c *cli.Context) error {
-					results, err := scrape.GetResultsForLetter("A")
+					results, err := indexer.LoadIndex()
 					if err != nil {
 						panic(err)
 					}
@@ -43,6 +44,18 @@ func Execute() {
 						panic(err)
 					}
 					fmt.Println(tracks)
+					return nil
+				},
+			},
+			{
+				Name:    "index",
+				Aliases: []string{"i"},
+				Usage:   "builds an indexer of all khinsider content",
+				Action: func(c *cli.Context) error {
+					err := indexer.BuildIndex()
+					if err != nil {
+						panic(err)
+					}
 					return nil
 				},
 			},

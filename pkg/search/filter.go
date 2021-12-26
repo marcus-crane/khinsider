@@ -3,9 +3,8 @@ package search
 import (
 	"fmt"
 	"sort"
-	"strings"
 
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/pterm/pterm"
 
 	"github.com/marcus-crane/khinsider/pkg/types"
@@ -17,20 +16,14 @@ func FilterAlbumList(list types.SearchResults) (string, error) {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	prompt := promptui.Select{
-		Label:             "Search for an album",
-		Items:             keys,
-		Size:              10,
-		StartInSearchMode: true,
-		Searcher: func(input string, index int) bool {
-			album := keys[index]
-			name := strings.Replace(strings.ToLower(album), " ", "", -1)
-			input = strings.Replace(strings.ToLower(input), " ", "", -1)
-			return strings.Contains(name, input)
-		},
+
+	prompt := &survey.Select{
+		Message: "Choose an album:",
+		Options: keys,
 	}
 
-	_, result, err := prompt.Run()
+	var result string
+	err := survey.AskOne(prompt, &result, survey.WithPageSize(15))
 
 	pterm.Info.Printf("Selected %s\n", result)
 

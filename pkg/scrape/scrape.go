@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -29,7 +30,12 @@ func DownloadPage(url string) (*http.Response, error) {
 func GetResultsForLetter(letter string) (types.SearchResults, error) {
 	url := fmt.Sprintf("%s%s", LetterBase, letter)
 	res, err := DownloadPage(url)
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +61,12 @@ func DownloadAlbum(slug string) (types.Album, error) {
 	var album types.Album
 	url := fmt.Sprintf("%s%s", AlbumBase, slug)
 	res, err := DownloadPage(url)
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if err != nil {
 		return album, err
 	}
