@@ -1,4 +1,4 @@
-module github.com/marcus-crane/khinsider
+module github.com/marcus-crane/khinsider/v2
 
 go 1.15
 

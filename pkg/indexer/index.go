@@ -14,9 +14,9 @@ import (
 
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/pkg/scrape"
-	"github.com/marcus-crane/khinsider/pkg/types"
-	"github.com/marcus-crane/khinsider/pkg/util"
+	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
+	"github.com/marcus-crane/khinsider/v2/pkg/types"
+	"github.com/marcus-crane/khinsider/v2/pkg/util"
 )
 
 const (

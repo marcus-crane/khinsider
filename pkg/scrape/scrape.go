@@ -10,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/pkg/types"
+	"github.com/marcus-crane/khinsider/v2/pkg/types"
 )
 
 const (

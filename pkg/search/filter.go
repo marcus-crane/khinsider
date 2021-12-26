@@ -6,7 +6,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/pkg/types"
+	"github.com/marcus-crane/khinsider/v2/pkg/types"
 )
 
 func FilterAlbumList(list types.SearchResults) (string, error) {

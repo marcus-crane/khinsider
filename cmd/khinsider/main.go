@@ -9,10 +9,10 @@ import (
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 
-	"github.com/marcus-crane/khinsider/pkg/download"
-	"github.com/marcus-crane/khinsider/pkg/indexer"
-	"github.com/marcus-crane/khinsider/pkg/scrape"
-	"github.com/marcus-crane/khinsider/pkg/search"
+	"github.com/marcus-crane/khinsider/v2/pkg/download"
+	"github.com/marcus-crane/khinsider/v2/pkg/indexer"
+	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
+	"github.com/marcus-crane/khinsider/v2/pkg/search"
 )
 
 func Execute() {
