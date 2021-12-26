@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   lint:
-    name: index-sync
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
