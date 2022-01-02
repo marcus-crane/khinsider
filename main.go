@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/user"
 	"strings"
-  "unicode/utf8"
+	"unicode/utf8"
 
 	"github.com/urfave/cli/v2"
 	"github.com/yhat/scrape"
@@ -106,12 +106,12 @@ func downloadFile(filepath string, url string) (err error) {
 }
 
 func main() {
-  app := cli.NewApp()
-  app.Name = "khinsider"
-  app.Usage = "Fetch albums from download.khinsider.com"
-  app.Version = "1.11.0" // damn, versioning for this sucks huh
-  app.Action = func(c *cli.Context) error {
-	  album := c.Args().Get(0)
+	app := cli.NewApp()
+	app.Name = "khinsider"
+	app.Usage = "Fetch albums from download.khinsider.com"
+	app.Version = "1.11.0" // damn, versioning for this sucks huh
+	app.Action = func(c *cli.Context) error {
+		album := c.Args().Get(0)
 		if album != "" {
 			queryResults := scrapeAlbum(album)
 			if queryResults == nil {
@@ -128,20 +128,20 @@ func main() {
 				track := queryResults.Tracks[i]
 				track.Link = pullAudioStream(track.Link)
 				fmt.Printf("Downloading %02d %s\n", track.Number, track.Title)
-        // this should hold for now until i do a proper rewrite
-        if !utf8.ValidString(track.Title) {
-          validString := make([]rune, 0, len(track.Title))
-          for i, r := range track.Title {
-            if r == utf8.RuneError {
-              _, size := utf8.DecodeRuneInString(track.Title[i:])
-              if size == 1 {
-                continue
-              }
-            }
-            validString = append(validString, r)
-          }
-          track.Title = string(validString)
-        }
+				// this should hold for now until i do a proper rewrite
+				if !utf8.ValidString(track.Title) {
+					validString := make([]rune, 0, len(track.Title))
+					for i, r := range track.Title {
+						if r == utf8.RuneError {
+							_, size := utf8.DecodeRuneInString(track.Title[i:])
+							if size == 1 {
+								continue
+							}
+						}
+						validString = append(validString, r)
+					}
+					track.Title = string(validString)
+				}
 				filePath := fmt.Sprintf(usr.HomeDir+"/Downloads/%s/%02d %s.mp3", album, track.Number, track.Title)
 				downloadFile(filePath, track.Link)
 			}
