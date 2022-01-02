@@ -2,7 +2,7 @@ name: "Release khinsider binaries"
 on:
   push:
     tags:
-      - v2.*
+      - v*
 
 permissions:
   contents: write
