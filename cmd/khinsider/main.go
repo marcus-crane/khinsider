@@ -2,6 +2,7 @@ package khinsider
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -15,7 +16,24 @@ import (
 	"github.com/marcus-crane/khinsider/v2/pkg/search"
 )
 
-func Execute() {
+type BuildInfo struct {
+	Version string
+	Commit  string
+	Date    string
+	BuiltBy string
+}
+
+func (b BuildInfo) Print() {
+	fmt.Println("Version:\t", b.Version)
+	fmt.Println("Commit Hash:\t", b.Commit)
+	fmt.Println("Build Date:\t", b.Date)
+	fmt.Println("Build Source:\t", b.BuiltBy)
+}
+
+func Execute(buildInfo BuildInfo) {
+	cli.VersionPrinter = func(c *cli.Context) {
+		buildInfo.Print()
+	}
 	app := &cli.App{
 		Name:     "khinsider",
 		Version:  "2.0.0",

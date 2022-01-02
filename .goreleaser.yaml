@@ -1,0 +1,31 @@
+project_name: khinsider
+builds:
+  -
+    binary: khinsider
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - arm64
+      - amd64
+archives:
+  -
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+brews:
+  -
+    tap:
+      owner: marcus-crane
+      name: homebrew-tap
+      branch: main
+    commit_author:
+      name: utf9k Release Bot
+      email: helper@utf9k.net
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://utf9k.net"
+    license: "MIT"
