@@ -1,0 +1,83 @@
+project_name: khinsider
+builds:
+  - binary: khinsider
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - arm64
+      - amd64
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+nfpms:
+  - package_name: khinsider
+    vendor: utf9k
+    homepage: https://utf9k.net
+    maintainer: Marcus Crane <khinsider@utf9k.net>
+    description: "Easily fetch videogame soundtracks from downloads.khinsider.com"
+    license: "MIT"
+    formats:
+      - apk
+      - deb
+      - rpm
+dockers:
+  - image_templates:
+      - "docker.io/utf9k/khinsider:{{ .Version }}-amd64"
+      - "ghcr.io/marcus-crane/khinsider:{{ .Version }}-amd64"
+    skip_push: auto
+    use: buildx
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "docker.io/utf9k/khinsider:{{ .Version }}-arm64v8"
+      - "ghcr.io/marcus-crane/khinsider:{{ .Version }}-arm64v8"
+    skip_push: auto
+    use: buildx
+    goarch: arm64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64/v8"
+docker_manifests:
+  - name_template: docker.io/utf9k/khinsider:{{ .Version }}
+    image_templates:
+      - docker.io/utf9k/khinsider:{{ .Version }}-amd64
+      - docker.io/utf9k/khinsider:{{ .Version }}-arm64v8
+    skip_push: auto
+  - name_template: ghcr.io/marcus-crane/khinsider:{{ .Version }}
+    image_templates:
+      - ghcr.io/marcus-crane/khinsider:{{ .Version }}-amd64
+      - ghcr.io/marcus-crane/khinsider:{{ .Version }}-arm64v8
+    skip_push: auto
+release:
+  github:
+    owner: marcus-crane
+    name: khinsider
+  prerelease: auto
+brews:
+  - tap:
+      owner: marcus-crane
+      name: homebrew-tap
+      branch: main
+    commit_author:
+      name: utf9k Release Bot
+      email: helper@utf9k.net
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://utf9k.net"
+    description: "Easily fetch videogame soundtracks from downloads.khinsider.com"
+    license: "MIT"
+    skip_upload: auto
