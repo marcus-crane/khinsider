@@ -1,7 +1,6 @@
 project_name: khinsider
 builds:
-  -
-    binary: khinsider
+  - binary: khinsider
     goos:
       - darwin
       - linux
@@ -10,16 +9,19 @@ builds:
       - arm64
       - amd64
 archives:
-  -
-    format_overrides:
+  - format_overrides:
       - goos: windows
         format: zip
     files:
       - LICENSE
       - README.md
+release:
+  github:
+    owner: marcus-crane
+    name: khinsider
+  prerelease: auto
 brews:
-  -
-    tap:
+  - tap:
       owner: marcus-crane
       name: homebrew-tap
       branch: main
@@ -28,4 +30,6 @@ brews:
       email: helper@utf9k.net
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     homepage: "https://utf9k.net"
+    description: "easily fetch videogame soundtracks from downloads.khinsider.com"
     license: "MIT"
+    skip_upload: auto
