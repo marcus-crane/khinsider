@@ -26,7 +26,7 @@ func Execute() {
 				Email: "khinsider@utf9k.net",
 			},
 		},
-		Usage: "khinsider - easily fetch videogame soundtracks from downloads.khinsider.com",
+		Usage: "easily fetch videogame soundtracks from downloads.khinsider.com",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}},
 		},
@@ -45,7 +45,7 @@ func Execute() {
 					indexExists := indexer.CheckIndexExists()
 					if indexExists {
 						pterm.Debug.Println("Checking for updates")
-						updateAvailable := indexer.CheckIndexUpdateAvailable()
+						updateAvailable := indexer.IsRemoteVersionNewer()
 						if updateAvailable {
 							err := indexer.DownloadIndex()
 							if err != nil {
@@ -62,11 +62,11 @@ func Execute() {
 					return nil
 				},
 				Action: func(c *cli.Context) error {
-					results, err := indexer.LoadLocalIndex()
+					index, err := indexer.LoadLocalIndex()
 					if err != nil {
 						panic(err)
 					}
-					_, err = search.FilterAlbumList(results)
+					_, err = search.FilterAlbumList(index.Entries)
 					if err != nil {
 						pterm.Info.Println("Goodbye")
 					}

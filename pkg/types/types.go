@@ -21,6 +21,17 @@ type TrackMetaIndexes struct {
 
 type SearchResults map[string]string
 
+type SearchIndex struct {
+	IndexVersion string        `json:"index_version"`
+	Entries      SearchResults `json:"entries"`
+}
+
+type RemoteIndexMetadata struct {
+	ReleaseURL string `json:"html_url"`
+	Version    string `json:"tag_name"`
+	Name       string `json:"name"`
+}
+
 type Track struct {
 	CDNumber     string
 	Number       string
