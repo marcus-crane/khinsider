@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"fmt"
+	"github.com/marcus-crane/khinsider/v2/pkg/util"
 	"io"
 	"net/http"
 	"strconv"
@@ -14,7 +15,6 @@ import (
 )
 
 const (
-	AlbumBase  = "https://downloads.khinsider.com/game-soundtracks/album/"
 	LetterBase = "https://downloads.khinsider.com/game-soundtracks/browse/"
 )
 
@@ -59,9 +59,11 @@ func GetResultsForLetter(letter string) (types.SearchResults, error) {
 	return results, nil
 }
 
-func DownloadAlbum(slug string) (types.Album, error) {
+func RetrieveAlbum(path string) (types.Album, error) {
 	var album types.Album
-	albumUrl := fmt.Sprintf("%s%s", AlbumBase, slug)
+	slugBits := strings.Split(path, "/")
+	album.Slug = slugBits[len(slugBits)-1]
+	albumUrl := fmt.Sprintf("%s%s", util.SiteBase, path)
 	res, err := DownloadPage(albumUrl)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -101,12 +103,13 @@ func DownloadAlbum(slug string) (types.Album, error) {
 	if album.FlacAvailable {
 		flacLabel = "[FLAC]"
 	}
-	pterm.Info.Printfln(
+	pterm.Success.Printfln(
 		"Found %s (%d tracks) %s %s",
 		album.Name,
 		album.FileCount,
 		"[MP3]",
 		flacLabel)
+	pterm.Warning.Println("Searching for track locations up front. This may take seconds or minutes depending on album length!")
 	_ = doc.Find("#EchoTopic table:not(#songList) tr div a").Each(func(i int, s *goquery.Selection) {
 		coverUrl, exists := s.Attr("href")
 		if exists {
@@ -135,7 +138,6 @@ func DownloadAlbum(slug string) (types.Album, error) {
 			songMeta[i+1] = "FlacFileSize"
 		}
 	})
-	fmt.Println(songMeta)
 	doc.Find("#songlist tr:not(#songlist_header, #songlist_footer)").Each(func(i int, s *goquery.Selection) {
 		var track types.Track
 		s.Find("td").Each(func(i int, s *goquery.Selection) {
@@ -153,12 +155,38 @@ func DownloadAlbum(slug string) (types.Album, error) {
 			}
 			if songMeta[i] == "MP3FileSize" {
 				track.MP3FileSize = strings.TrimSpace(s.Text())
+				url, exists := s.Children().Attr("href")
+				if exists {
+					if !strings.Contains(url, "://") {
+						url = fmt.Sprintf("%s%s", util.SiteBase, url)
+					}
+					res, err := DownloadPage(url)
+					if err != nil {
+						panic(err)
+					}
+					defer func(Body io.ReadCloser) {
+						err := Body.Close()
+						if err != nil {
+							panic(err)
+						}
+					}(res.Body)
+					if err != nil {
+						panic(err)
+					}
+					page, err := goquery.NewDocumentFromReader(res.Body)
+					if err != nil {
+						panic(err)
+					}
+					src, exists := page.Find("audio").Attr("src")
+					if exists {
+						track.URL = src
+					}
+				}
 			}
 			if songMeta[i] == "FlacFileSize" {
 				track.FlacFileSize = strings.TrimSpace(s.Text())
 			}
 		})
-		fmt.Println(track)
 		album.Tracks = append(album.Tracks, track)
 	})
 	return album, nil

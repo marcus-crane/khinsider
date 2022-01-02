@@ -1,6 +1,7 @@
 package types
 
 type Album struct {
+	Slug          string
 	FlacAvailable bool
 	Name          string
 	MP3FileSize   string

@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -93,7 +92,7 @@ func GetLocalIndexVersion() string {
 }
 
 func GetRemoteIndexVersion() string {
-	res, err := makeRequest(IndexReleaseFeed)
+	res, err := util.RequestJSON(IndexReleaseFeed)
 	if err != nil {
 		panic(err)
 	}
@@ -143,26 +142,9 @@ func IsRemoteVersionNewer() bool {
 	return false
 }
 
-func makeRequest(link string) (*http.Response, error) {
-	remoteURL, err := url.Parse(link)
-	if err != nil {
-		panic(err)
-	}
-	client := http.Client{}
-	request := http.Request{
-		Method: "GET",
-		URL:    remoteURL,
-		Header: map[string][]string{
-			"Accept-Encoding": {"application/json"},
-			"Content-Type":    {"application/json"},
-		},
-	}
-	return client.Do(&request)
-}
-
 func DownloadIndex() error {
 	pterm.Info.Printfln("Downloading latest search index. This lets you search all of khinsider locally.")
-	res, err := makeRequest(RemoteIndex)
+	res, err := util.RequestJSON(RemoteIndex)
 	if err != nil {
 		panic(err)
 	}

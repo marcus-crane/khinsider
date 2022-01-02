@@ -4,8 +4,6 @@ import (
 	"sort"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/pterm/pterm"
-
 	"github.com/marcus-crane/khinsider/v2/pkg/types"
 )
 
@@ -22,12 +20,10 @@ func FilterAlbumList(list types.SearchResults) (string, error) {
 	}
 
 	var result string
-	err := survey.AskOne(prompt, &result, survey.WithPageSize(15))
+	err := survey.AskOne(prompt, &result, survey.WithPageSize(25))
 
 	if err != nil {
 		return "", err
 	}
-
-	pterm.Info.Printf("Selected %s\n", result)
-	return result, nil
+	return list[result], nil
 }

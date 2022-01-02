@@ -2,8 +2,14 @@ package util
 
 import (
 	"io"
+	"net/http"
+	"net/url"
 
 	"github.com/pterm/pterm"
+)
+
+const (
+	SiteBase = "https://downloads.khinsider.com"
 )
 
 type Reader struct {
@@ -30,4 +36,36 @@ func (r *Reader) Close() (err error) {
 		return closer.Close()
 	}
 	return
+}
+
+func MakeRequest(link string, headers http.Header) (*http.Response, error) {
+	remoteURL, err := url.Parse(link)
+	if err != nil {
+		panic(err)
+	}
+	client := http.Client{}
+	request := http.Request{
+		Method: "GET",
+		URL:    remoteURL,
+		Header: headers,
+	}
+	return client.Do(&request)
+}
+
+func RequestJSON(link string) (*http.Response, error) {
+	headers := map[string][]string{
+		"Accept-Encoding": {"application/json"},
+		"Content-Type":    {"application/json"},
+		"User-Agent":      {"khinsider/2.0 <https://github.com/marcus-crane/khinsider>"},
+	}
+	return MakeRequest(link, headers)
+}
+
+func RequestFile(link string) (*http.Response, error) {
+	headers := map[string][]string{
+		"Accept-Encoding": {"application/octet-stream"},
+		"Content-Type":    {"application/octet-stream"},
+		"User-Agent":      {"khinsider/2.0 <https://github.com/marcus-crane/khinsider>"},
+	}
+	return MakeRequest(link, headers)
 }
