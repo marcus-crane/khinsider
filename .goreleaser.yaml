@@ -38,6 +38,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/marcus-crane/khinsider"
       - "--platform=linux/amd64"
   - image_templates:
       - "docker.io/utf9k/khinsider:{{ .Version }}-arm64v8"
@@ -51,6 +52,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/marcus-crane/khinsider"
       - "--platform=linux/arm64/v8"
 docker_manifests:
   - name_template: docker.io/utf9k/khinsider:{{ .Version }}
