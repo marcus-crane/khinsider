@@ -75,6 +75,7 @@ brews:
       owner: marcus-crane
       name: homebrew-tap
       branch: main
+    folder: Formula
     commit_author:
       name: utf9k Release Bot
       email: helper@utf9k.net
