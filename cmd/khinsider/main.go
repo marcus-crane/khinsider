@@ -94,7 +94,8 @@ func Execute() {
 			{
 				Name:    "index",
 				Aliases: []string{"i"},
-				Usage:   "builds an indexer of all khinsider content",
+				Usage:   "generates a local index of all khinsider content",
+				Hidden:  true,
 				Action: func(c *cli.Context) error {
 					err := indexer.BuildIndex()
 					if err != nil {
