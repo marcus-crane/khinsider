@@ -1,7 +1,10 @@
 package util
 
 import (
+	"encoding/json"
+	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -68,4 +71,14 @@ func RequestFile(link string) (*http.Response, error) {
 		"User-Agent":      {"khinsider/2.0 <https://github.com/marcus-crane/khinsider>"},
 	}
 	return MakeRequest(link, headers)
+}
+
+func LoadJSON(file io.Reader, i interface{}) error {
+	fileBytes, _ := ioutil.ReadAll(file)
+	err := json.Unmarshal(fileBytes, &i)
+	if err != nil {
+		pterm.Error.Println("Failed to load JSON")
+		return errors.New("failed to load JSON")
+	}
+	return nil
 }

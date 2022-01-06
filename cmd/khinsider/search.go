@@ -6,6 +6,7 @@ import (
 	"github.com/marcus-crane/khinsider/v2/pkg/indexer"
 	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
 	"github.com/marcus-crane/khinsider/v2/pkg/search"
+	"github.com/marcus-crane/khinsider/v2/pkg/update"
 	"github.com/pterm/pterm"
 )
 
@@ -13,7 +14,9 @@ func BeforeSearch() error {
 	indexExists := indexer.CheckIndexExists()
 	if indexExists {
 		pterm.Debug.Println("Checking for updates")
-		updateAvailable := indexer.IsRemoteVersionNewer()
+		localVersion := indexer.GetLocalIndexVersion()
+		remoteVersion := update.GetRemoteIndexVersion()
+		updateAvailable := update.IsRemoteVersionNewer(localVersion, remoteVersion)
 		if updateAvailable {
 			err := indexer.DownloadIndex()
 			if err != nil {

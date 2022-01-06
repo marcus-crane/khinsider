@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/marcus-crane/khinsider/v2/pkg/update"
 	"github.com/pterm/pterm"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/user"
@@ -14,17 +14,14 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/mod/semver"
-
 	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
 	"github.com/marcus-crane/khinsider/v2/pkg/types"
 	"github.com/marcus-crane/khinsider/v2/pkg/util"
 )
 
 const (
-	LocalIndex       = "index.json"
-	IndexReleaseFeed = "https://api.github.com/repos/marcus-crane/khinsider-index/releases/latest"
-	RemoteIndex      = "https://raw.githubusercontent.com/marcus-crane/khinsider-index/main/index.json"
+	LocalIndex  = "index.json"
+	RemoteIndex = "https://raw.githubusercontent.com/marcus-crane/khinsider-index/main/index.json"
 )
 
 func getConfigPath(filename string) string {
@@ -88,58 +85,17 @@ func GetLocalIndexVersion() string {
 	if err != nil {
 		panic(err)
 	}
-	return ValidateIndexVersion(index.IndexVersion, "local")
-}
-
-func GetRemoteIndexVersion() string {
-	res, err := util.RequestJSON(IndexReleaseFeed)
-	if err != nil {
-		panic(err)
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(res.Body)
-	var remoteIndex types.RemoteIndexMetadata
-	if err := LoadJSON(res.Body, &remoteIndex); err != nil {
-		panic(err)
-	}
-	return ValidateIndexVersion(remoteIndex.Version, "remote")
-}
-
-func ValidateIndexVersion(version string, indexLocation string) string {
-	if !strings.HasPrefix(version, "v") {
-		pterm.Error.Printfln("%s index version %s doesn't start with a v.", indexLocation, version)
-		panic(errors.New(fmt.Sprintf("%s index version is invalid", indexLocation)))
-	}
-	versionBits := strings.Split(version, ".")
-	if len(versionBits) != 3 {
-		pterm.Error.Printf("expected %s version %s to have 3 parts. %s only has %d", indexLocation, version, len(versionBits))
-		panic(errors.New(fmt.Sprintf("%s index version is invalid", indexLocation)))
-	}
-	return version
+	return update.ValidateIndexVersion(index.IndexVersion, "local")
 }
 
 func IncrementIndexVersion() string {
-	remoteVersion := GetRemoteIndexVersion()
+	remoteVersion := update.GetRemoteIndexVersion()
 	semverBits := strings.Split(remoteVersion, ".")
 	patch := semverBits[len(semverBits)-1]
 	patchAsNumber, _ := strconv.Atoi(patch)
 	patch = strconv.Itoa(patchAsNumber + 1)
 	semverBits[len(semverBits)-1] = patch
 	return strings.Join(semverBits, ".")
-}
-
-func IsRemoteVersionNewer() bool {
-	localVersion := GetLocalIndexVersion()
-	remoteVersion := GetRemoteIndexVersion()
-	result := semver.Compare(localVersion, remoteVersion)
-	if result == -1 {
-		return true
-	}
-	return false
 }
 
 func DownloadIndex() error {
@@ -161,7 +117,7 @@ func DownloadIndex() error {
 		indexPath := getConfigPath(LocalIndex)
 		createPathIfNotExists(indexPath)
 		var index types.SearchIndex
-		if err := LoadJSON(reader, &index); err != nil {
+		if err := util.LoadJSON(reader, &index); err != nil {
 			panic(err)
 		}
 		err = SaveIndex(index)
@@ -171,16 +127,6 @@ func DownloadIndex() error {
 		return nil
 	}
 	return fmt.Errorf("received a non-200 status code: %d", res.StatusCode)
-}
-
-func LoadJSON(file io.Reader, i interface{}) error {
-	fileBytes, _ := ioutil.ReadAll(file)
-	err := json.Unmarshal(fileBytes, &i)
-	if err != nil {
-		pterm.Error.Println("Failed to load JSON")
-		return errors.New("failed to load JSON")
-	}
-	return nil
 }
 
 func LoadLocalIndex() (types.SearchIndex, error) {
@@ -195,7 +141,7 @@ func LoadLocalIndex() (types.SearchIndex, error) {
 		}
 	}(file)
 	var index types.SearchIndex
-	if err := LoadJSON(file, &index); err != nil {
+	if err := util.LoadJSON(file, &index); err != nil {
 		return index, nil
 	}
 	return index, err

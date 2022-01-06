@@ -31,6 +31,7 @@ type RemoteIndexMetadata struct {
 	ReleaseURL string `json:"html_url"`
 	Version    string `json:"tag_name"`
 	Name       string `json:"name"`
+	Prerelease bool   `json:"prerelease"`
 }
 
 type Track struct {

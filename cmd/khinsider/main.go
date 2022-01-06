@@ -41,10 +41,17 @@ func Execute(buildInfo BuildInfo) {
 		Usage: "easily fetch videogame soundtracks from downloads.khinsider.com",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}},
+			&cli.BoolFlag{Name: "prerelease", Aliases: []string{"p"}, Usage: "Update to the latest beta of khinsider", DefaultText: "false"},
 		},
 		Before: func(c *cli.Context) error {
 			if c.Bool("debug") {
 				pterm.EnableDebugMessages()
+			}
+			return nil
+		},
+		After: func(c *cli.Context) error {
+			if updateExists, newVersion := CheckForUpdates(c, buildInfo.Version, false); updateExists {
+				pterm.Info.Printfln("%s is now available. Run khinsider update to automatically install the latest version.", newVersion)
 			}
 			return nil
 		},
@@ -75,6 +82,15 @@ func Execute(buildInfo BuildInfo) {
 				Hidden:  true,
 				Action: func(c *cli.Context) error {
 					return IndexAction()
+				},
+			},
+			{
+				Name:    "update",
+				Aliases: []string{"u"},
+				Usage:   "checks for updates to khinsider",
+				Action: func(c *cli.Context) error {
+					prerelease := c.Bool("prerelease")
+					return UpdateAction(c, buildInfo.Version, prerelease)
 				},
 			},
 		},
