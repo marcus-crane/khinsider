@@ -41,7 +41,6 @@ func Execute(buildInfo BuildInfo) {
 		Usage: "easily fetch videogame soundtracks from downloads.khinsider.com",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}},
-			&cli.BoolFlag{Name: "prerelease", Aliases: []string{"p"}, Usage: "Update to the latest beta of khinsider", DefaultText: "false"},
 		},
 		Before: func(c *cli.Context) error {
 			if c.Bool("debug") {
@@ -88,6 +87,9 @@ func Execute(buildInfo BuildInfo) {
 				Name:    "update",
 				Aliases: []string{"u"},
 				Usage:   "checks for updates to khinsider",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "prerelease", Aliases: []string{"p"}, Usage: "Update to the latest beta of khinsider", DefaultText: "false"},
+				},
 				Action: func(c *cli.Context) error {
 					prerelease := c.Bool("prerelease")
 					return UpdateAction(c, buildInfo.Version, prerelease)
