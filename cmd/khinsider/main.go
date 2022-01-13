@@ -30,7 +30,7 @@ func Execute(buildInfo BuildInfo) {
 	}
 	app := &cli.App{
 		Name:     "khinsider",
-		Version:  "2.0.0",
+		Version:  buildInfo.Version,
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
 			{
