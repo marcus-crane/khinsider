@@ -98,5 +98,6 @@ func ValidateIndexVersion(version string, indexLocation string) string {
 
 func IsRemoteVersionNewer(localVersion string, remoteVersion string) bool {
 	result := semver.Compare(localVersion, remoteVersion)
+	pterm.Debug.Printfln("Compared versions and got %d", result)
 	return result == -1
 }

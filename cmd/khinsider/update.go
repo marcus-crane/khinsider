@@ -14,7 +14,8 @@ func isUpdaterDisabled() bool {
 }
 
 func CheckForUpdates(c *cli.Context, currentVersion string, prerelease bool) (bool, string) {
-	if isUpdaterDisabled() && c.Command.Name != "update" {
+	// TODO: Fix for go install which doesn't honour ldflags it seems?
+	if isUpdaterDisabled() && c.Command.Name != "update" || currentVersion == "" {
 		pterm.Debug.Println("Updater is disabled. Skipping update check.")
 		return false, ""
 	}
@@ -23,9 +24,11 @@ func CheckForUpdates(c *cli.Context, currentVersion string, prerelease bool) (bo
 		remoteVersion = update.GetRemoteAppVersion()
 		pterm.Debug.Printfln("Found remote version: %s", remoteVersion)
 	} else {
+		pterm.Debug.Printfln("Found remote prerelease version: %s", remoteVersion)
 		remoteVersion = update.GetRemoteAppPrerelease()
 	}
 	isUpdateAvailable := update.IsRemoteVersionNewer(currentVersion, remoteVersion)
+	pterm.Debug.Printfln("Current is %s while remote is %s. Update is available: %t", currentVersion, remoteVersion, isUpdateAvailable)
 	if isUpdateAvailable {
 		return true, remoteVersion
 	}
