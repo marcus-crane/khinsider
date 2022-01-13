@@ -17,10 +17,7 @@ func CheckForUpdates(c *cli.Context, currentVersion string, prerelease bool) (bo
 			return false, ""
 		}
 	}
-	if os.Getenv("CI") == "true" {
-		return false, ""
-	}
-	if os.Getenv("KHINSIDER_NO_UPDATE") == "true" {
+	if os.Getenv("CI") == "true" || os.Getenv("KHINSIDER_NO_UPDATE") == "true" {
 		return false, ""
 	}
 	remoteVersion := ""
