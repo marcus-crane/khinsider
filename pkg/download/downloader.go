@@ -1,13 +1,16 @@
 package download
 
 import (
+	"errors"
 	"fmt"
 	"github.com/marcus-crane/khinsider/v2/pkg/types"
 	"github.com/marcus-crane/khinsider/v2/pkg/util"
 	"github.com/pterm/pterm"
 	"io"
+	"io/fs"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 func GetAlbum(album *types.Album) {
@@ -15,19 +18,30 @@ func GetAlbum(album *types.Album) {
 	downloadFolder := fmt.Sprintf("%s/Downloads", usrHome) // TODO: Offer a configuration option
 	normalisedSlug := strings.ReplaceAll(album.Slug, ".", "")
 	directoryPath := fmt.Sprintf("%s/%s", downloadFolder, normalisedSlug)
-	err := os.Remove(directoryPath)
-	if err != nil {
+	// TODO: This should be checked before download since it takes ages to get here
+	_, err := os.Stat(directoryPath)
+	if !errors.Is(err, fs.ErrNotExist) && err != nil {
 		panic(err)
 	}
+	if os.IsExist(err) {
+		err := os.Remove(directoryPath)
+		if err != nil {
+			pterm.Error.Printfln("A folder already exists at %s. Please remove it to continue.", directoryPath)
+			os.Exit(1)
+		}
+	}
 	err = os.Mkdir(directoryPath, 0755)
-	if err != nil {
+	if os.IsExist(err) && err != nil {
+		pterm.Error.Printfln("A folder already exists at %s. Please remove it to continue.", directoryPath)
+		os.Exit(1)
+	}
+	if os.IsNotExist(err) && err != nil {
 		panic(err)
 	}
 	pterm.Success.Printfln("Successfully created %s", directoryPath)
 	lastCDNumber := ""
 	trackNumEndLastCD := 0
-	for i := 0; i < album.FileCount; i++ {
-		track := album.Tracks[i]
+	for i, track := range album.Tracks {
 		trackFmt := track.Name
 		// When we hit a new CD, we'll reset the numbering and start again from
 		// zero. We need to make sure we don't set the wrong padding though.
@@ -41,12 +55,11 @@ func GetAlbum(album *types.Album) {
 		if track.CDNumber == lastCDNumber {
 			padLength = 2 // Assume most CDs aren't any bigger than 100 tracks
 		}
-		formatFormat := "%0" + fmt.Sprintf("%d", padLength) + "d %s"
 		trackCount := i + 1
 		if trackNumEndLastCD != 0 {
 			trackCount = trackCount - trackNumEndLastCD
 		}
-		trackFmt = fmt.Sprintf(formatFormat, trackCount, trackFmt)
+		trackFmt = fmt.Sprintf("%0*d %s", padLength, trackCount, trackFmt)
 		if track.CDNumber != "" {
 			trackFmt = fmt.Sprintf("%sx%s", track.CDNumber, trackFmt)
 		}
@@ -62,7 +75,7 @@ func GetAlbum(album *types.Album) {
 }
 
 func SaveAudioFile(track types.Track, fileName string, saveLocation string) error {
-	trackFile := fmt.Sprintf("%s/%s.mp3", saveLocation, fileName)
+	trackFile := fmt.Sprintf("%s/%s.mp3", saveLocation, normaliseFileName(fileName))
 	pterm.Debug.Printfln("Downloading %s", track.URL)
 	res, err := util.RequestFile(track.URL)
 	defer func(Body io.ReadCloser) {
@@ -84,6 +97,7 @@ func SaveAudioFile(track types.Track, fileName string, saveLocation string) erro
 	}(writer)
 	if err != nil {
 		pterm.Debug.Printfln("There was an error creating %s", trackFile)
+		pterm.Debug.Printfln(err.Error())
 		return err
 	}
 	_, err = io.Copy(writer, res.Body)
@@ -92,4 +106,24 @@ func SaveAudioFile(track types.Track, fileName string, saveLocation string) erro
 		return err
 	}
 	return nil
+}
+
+func normaliseFileName(title string) string {
+	// TODO: Code dump from v1. Should be reviewed again.
+	if !utf8.ValidString(title) {
+		pterm.Debug.Printfln("Invalid title: %s", title)
+		validString := make([]rune, 0, len(title))
+		for i, r := range title {
+			if r == utf8.RuneError {
+				_, size := utf8.DecodeRuneInString(title[i:])
+				if size == 1 {
+					continue
+				}
+			}
+			validString = append(validString, r)
+		}
+		pterm.Debug.Printfln("Normalised title: %s", string(validString))
+		return string(validString)
+	}
+	return title
 }

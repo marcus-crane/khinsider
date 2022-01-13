@@ -24,12 +24,12 @@ const (
 	RemoteIndex = "https://raw.githubusercontent.com/marcus-crane/khinsider-index/main/index.json"
 )
 
-func getConfigPath(filename string) string {
+func getCachePath(filename string) string {
 	usr, err := user.Current()
 	if err != nil {
 		panic(err)
 	}
-	return filepath.Join(usr.HomeDir, ".khinsider", filename)
+	return filepath.Join(usr.HomeDir, ".cache/khinsider/", filename)
 }
 
 func createPathIfNotExists(path string) {
@@ -43,7 +43,7 @@ func createPathIfNotExists(path string) {
 }
 
 func CheckIndexExists() bool {
-	indexPath := getConfigPath(LocalIndex)
+	indexPath := getCachePath(LocalIndex)
 	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
 		return false
 	}
@@ -114,7 +114,7 @@ func DownloadIndex() error {
 	reader := util.NewBarProxyReader(res.Body, p)
 	if res.StatusCode == http.StatusOK {
 		pterm.Debug.Printfln("Retrieved index with status code of %d", res.StatusCode)
-		indexPath := getConfigPath(LocalIndex)
+		indexPath := getCachePath(LocalIndex)
 		createPathIfNotExists(indexPath)
 		var index types.SearchIndex
 		if err := util.LoadJSON(reader, &index); err != nil {
@@ -130,7 +130,7 @@ func DownloadIndex() error {
 }
 
 func LoadLocalIndex() (types.SearchIndex, error) {
-	file, err := os.Open(getConfigPath(LocalIndex))
+	file, err := os.Open(getCachePath(LocalIndex))
 	if err != nil {
 		panic(err)
 	}
@@ -157,7 +157,7 @@ func SaveIndex(index types.SearchIndex) error {
 		pterm.Error.Println("It appears you have a corrupted index! TODO: Build a bug report")
 		return errors.New("index is malformed. can't serialise internal representation to json")
 	}
-	indexPath := getConfigPath(LocalIndex)
+	indexPath := getCachePath(LocalIndex)
 	createPathIfNotExists(indexPath)
 	err = os.WriteFile(indexPath, output, 0644)
 	if err != nil {

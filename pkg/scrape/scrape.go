@@ -19,7 +19,7 @@ const (
 )
 
 func DownloadPage(url string) (*http.Response, error) {
-	res, err := http.Get(url)
+	res, err := util.MakeRequest(url, http.Header{})
 	if err != nil {
 		return nil, err
 	}

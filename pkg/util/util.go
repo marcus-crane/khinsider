@@ -42,6 +42,7 @@ func (r *Reader) Close() (err error) {
 }
 
 func MakeRequest(link string, headers http.Header) (*http.Response, error) {
+	headers.Add("User-Agent", "khinsider/2.0 <https://github.com/marcus-crane/khinsider>")
 	remoteURL, err := url.Parse(link)
 	if err != nil {
 		panic(err)
@@ -59,7 +60,6 @@ func RequestJSON(link string) (*http.Response, error) {
 	headers := map[string][]string{
 		"Accept-Encoding": {"application/json"},
 		"Content-Type":    {"application/json"},
-		"User-Agent":      {"khinsider/2.0 <https://github.com/marcus-crane/khinsider>"},
 	}
 	return MakeRequest(link, headers)
 }
@@ -68,7 +68,6 @@ func RequestFile(link string) (*http.Response, error) {
 	headers := map[string][]string{
 		"Accept-Encoding": {"application/octet-stream"},
 		"Content-Type":    {"application/octet-stream"},
-		"User-Agent":      {"khinsider/2.0 <https://github.com/marcus-crane/khinsider>"},
 	}
 	return MakeRequest(link, headers)
 }
