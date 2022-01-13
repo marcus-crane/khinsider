@@ -150,7 +150,7 @@ func LoadLocalIndex() (types.SearchIndex, error) {
 func SaveIndex(index types.SearchIndex) error {
 	if len(index.Entries) == 0 {
 		pterm.Error.Println("It appears you have an empty index which shouldn't be possible. TODO: Build a bug report")
-		return errors.New("index is empty. search functionality won't work with no results")
+		return errors.New("index is empty which there is nothing to search through. that shouldn't be possible")
 	}
 	output, err := json.MarshalIndent(index, "", "  ")
 	if err != nil {
