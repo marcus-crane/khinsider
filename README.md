@@ -4,6 +4,9 @@
 
 > Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
+* [Installation](#installation)
+* [Flags](#flags)
+
 ## Installation
 
 V2 of khinsider offers a wide variety of distribution formats over the original:
