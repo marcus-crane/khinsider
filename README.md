@@ -24,6 +24,14 @@ If you prefer to not run anything on your machine, you can run `khinsider` as a 
 docker run utf9k/khinsider
 ```
 
+### Go install
+
+If you have a relatively new version of Go, you can install `khinsider` like so:
+
+```shell
+go install github.com/marcus-crane/khinsider@latest
+```
+
 ### Binaries
 
 There are a wide variety of binaries available under the [releases tab](https://github.com/marcus-crane/khinsider/releases):
