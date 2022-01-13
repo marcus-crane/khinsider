@@ -1,86 +1,68 @@
 # khinsider
 
-![A screenshot of khinsider running](screenshot.png?raw=true)
+![](https://img.shields.io/badge/version-v2.0.0-green)
 
-A usable but fairly featureless khinsider downloader written in Go. I use it myself but I need to clean up the code and write some more docs
+> Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
-### Table of Contents
-* [Usage](#usage)
-* [Installation](#installation)
-  * [Prebuilt binaries](#prebuilt-binaries)
-  * [Compiling from source](#compiling-from-source)
-* [Special thanks](#special-thanks)
+## Installation
 
-# Usage
+V2 of khinsider offers a wide variety of distribution formats over the original:
 
-As mentioned, this tool is very barebones so there's only really one thing you can do with it.
+### Homebrew
 
-Let's say we wanted to download the OST for [Persona 4 Dancing All Night](https://downloads.khinsider.com/game-soundtracks/album/persona-4-dancing-all-night).
+For macOS and Linux users who prefer Homebrew, there is a Homebrew formula installable like so:
 
-Assuming the URL is https://downloads.khinsider.com/game-soundtracks/album/persona-4-dancing-all-night, we want to take the slug, which is the portion of the URL after `/album/` like so:
-
-```golang
-khinsider persona-4-dancing-all-night
+```shell
+brew install marcus-crane/tap/khinsider
 ```
 
-It will create a folder in your downloads folder (`$HOME/Downloads/`) named after the slug and then start to download each track so eg; `~/Downloads/persona-4-dancing-all-night/17 カリステギア Karisutegia.mp3`
+### Docker
 
-There are no options for providing a download directory or anything like that but feel free to submit a feature request.
+If you prefer to not run anything on your machine, you can run `khinsider` as a Docker image. It's available from both [Docker Hub](https://hub.docker.com/r/utf9k/khinsider) and [ghcr.io](https://github.com/marcus-crane/khinsider/pkgs/container/khinsider)
 
-# Installation
-
-There are three options for installing `khinsider`.
-
-Using `go install` is the easiest and won't require any further fiddling out assuming that your `GOPATH` and the like are all set up.
-
-The later two will provide a binary in the download/compile director that, I recommend moving it to somewhere in your `PATH` such as `/usr/local/bin/khinsider`.
-
-That way, you can access it going forward by just running `khinsider` and not having to specify eg; `~/Downloads/khinsider`
-
-## Installing with Go
-
-You can install the latest build of `khinsider` with the following:
-
-```go
-go install github.com/marcus-crane/khinsider@latest
+```shell
+docker run utf9k/khinsider
 ```
 
-## Prebuilt binaries
+### Binaries
 
-Personally, I don't get off on the idea of compiling software so thanks to Github Actions, each release is already prebuilt and ready to go [on the releases page](https://github.com/marcus-crane/khinsider/releases).
+There are a wide variety of binaries available under the [releases tab](https://github.com/marcus-crane/khinsider/releases):
 
-I've provided builds for Windows, macOS and Linux, which contains a mix of both `x86` and `arm` binaries.
+- `apk`
+- `deb`
+- `rpm`
+- `exe`
 
-I do actually have an Apple Silicon Macbook Air which I'm pretty sure I tested the macOS binaries on but honestly I'd have to double check.
+Windows, macOS and Linux are all supported (x86 and arm64) although at the time of writing, I haven't tested most of those platforms personally.
 
-Let me know if there are any other platforms you'd like supported or feel free to add them yourself [here](https://github.com/marcus-crane/khinsider/blob/master/.github/workflows/release.yaml) by submitting a pull request.
+## Usage
 
-## Compiling from source
+> khinsider [global options] command [command options] [arguments...]
 
-This should just be as simple as the following:
+When you run `khinsider` by itself, you'll be presented with the help menu. There are a few subcommands you can choose from:
 
-```go
-> go build main.go
-> ./main
-Please enter the name of an album eg katamari-damacy-soundtrack-katamari-fortissimo-damacy%
-```
+- `search`: Interactively filter through all of the albums on khinsider. It's powered by a [prebuilt index](https://github.com/marcus-crane/khinsider-index) so you can search the entire site at once.
+  - The site is checked hourly for updates so the index will be no less than 1 hour out of date at any given time. If a new index is available, it'll be automatically downloaded.
+- `album`: If you know the particular album you're already, you can provide a slug and download it straight away.
+- `update`: As it says on the tin, you can automatically update `khinsider` to the latest version with this command.
+- `index`: This command is unlisted but if you prefer to build a copy of the index locally, you can do so with this command. The prebuilt index is simply running this command and uploading the index generated if it differs from the previous copy.
 
-If you want to compile for a different operating system or architecture, just use the Golang compiler flags like so:
+At present, all albums are downloaded to `$HOME/Downloads`. It also isn't possible to download an album if a folder with the same name exists (ie; a previous download) in which case, you'll be prompted to move the existing folder in order to carry on.
 
-```go
-> GOOS=linux GOARCH=arm64 go build main.go
-> ./main
-zsh: exec format error: ./main
-> uname -ms
-Darwin x86_64
-```
+### Flags
 
-I can't run the above example of course because I'm not running an arm based Linux machine but perhaps you'd like to compile for your Raspberry Pi while offline or something.
+You can run `--debug` before any command to see some more detailed information in the case of an issue but it isn't as fleshed out as I would like it to be. This should be expanding in future releases.
+
+When updating, you can use the `--prerelease` flag to request the latest prerelease over the latest stable release.
+
+### Environment variables
+
+By default, `khinsider` will check if there are any new updates in the background when run. It won't download them but it will prompt the user to consider updating. If you want to disable this check, you can set `KHINSIDER_NO_UPDATE=true` in your shell environment to disable this functionality.
 
 # Special thanks
 
-If you're looking for something more feature complete, check out [obskyr](https://github.com/obskyr)'s original which inspired this one: https://github.com/obskyr/khinsider
+I wouldn't have originally made this project without being inspired by [obskyr](https://github.com/obskyr)'s original [python-based downloader](https://github.com/obskyr/khinsider).
 
-In general, he's a cool guy and is up to lots of interesting stuff on [Twitter](https://twitter.com/obskyr)!
+In general, he's a cool guy and is up to lots of interesting stuff on [Twitter](https://twitter.com/obskyr).
 
-He didn't pay me to say this.
+Also a shout out to [Terin Stock](https://github.com/terinjokes) for his feedback on polishing up v2.0.0.
