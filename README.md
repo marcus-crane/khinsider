@@ -5,7 +5,14 @@
 > Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
 * [Installation](#installation)
-* [Flags](#flags)
+  * [Homebrew](#homebrew)
+  * [Docker](#docker)
+  * [Go](#go)
+  * [Binaries](#binaries)
+* [Usage](#usage)
+  * [Flags](#flags)
+  * [Environment variables](#environment-variables)
+* [Special Thanks](#special-thanks)
 
 ## Installation
 
@@ -27,7 +34,7 @@ If you prefer to not run anything on your machine, you can run `khinsider` as a 
 docker run utf9k/khinsider
 ```
 
-### Go install
+### Go
 
 If you have a relatively new version of Go, you can install `khinsider` like so:
 
@@ -70,7 +77,7 @@ When updating, you can use the `--prerelease` flag to request the latest prerele
 
 By default, `khinsider` will check if there are any new updates in the background when run. It won't download them but it will prompt the user to consider updating. If you want to disable this check, you can set `KHINSIDER_NO_UPDATE=true` in your shell environment to disable this functionality.
 
-# Special thanks
+## Special thanks
 
 I wouldn't have originally made this project without being inspired by [obskyr](https://github.com/obskyr)'s original [python-based downloader](https://github.com/obskyr/khinsider).
 
