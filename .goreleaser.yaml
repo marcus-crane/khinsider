@@ -1,6 +1,8 @@
 project_name: khinsider
 builds:
   - binary: khinsider
+    ldflags:
+      - -s -w -X main.version=v{{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
     goos:
       - darwin
       - linux
