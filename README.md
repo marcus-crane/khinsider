@@ -39,7 +39,7 @@ docker run utf9k/khinsider
 If you have a relatively new version of Go, you can install `khinsider` like so:
 
 ```shell
-go install github.com/marcus-crane/khinsider@latest
+go install github.com/marcus-crane/khinsider/v2@latest
 ```
 
 ### Binaries
