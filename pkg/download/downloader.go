@@ -17,11 +17,11 @@ func GetAlbum(album *types.Album) {
 	directoryPath := fmt.Sprintf("%s/%s", downloadFolder, normalisedSlug)
 	err := os.Remove(directoryPath)
 	if err != nil {
-		// Something
+		panic(err)
 	}
 	err = os.Mkdir(directoryPath, 0755)
 	if err != nil {
-		// Something
+		panic(err)
 	}
 	pterm.Success.Printfln("Successfully created %s", directoryPath)
 	lastCDNumber := ""
@@ -65,13 +65,23 @@ func SaveAudioFile(track types.Track, fileName string, saveLocation string) erro
 	trackFile := fmt.Sprintf("%s/%s.mp3", saveLocation, fileName)
 	pterm.Debug.Printfln("Downloading %s", track.URL)
 	res, err := util.RequestFile(track.URL)
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if err != nil {
 		pterm.Debug.Printfln("There was an error downloading %s", track.URL)
 		return err
 	}
 	writer, err := os.Create(trackFile)
-	defer writer.Close()
+	defer func(writer *os.File) {
+		err := writer.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(writer)
 	if err != nil {
 		pterm.Debug.Printfln("There was an error creating %s", trackFile)
 		return err

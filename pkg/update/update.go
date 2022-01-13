@@ -1,12 +1,12 @@
 package update
 
 import (
-	"errors"
 	"fmt"
 	"github.com/marcus-crane/khinsider/v2/pkg/types"
 	"github.com/marcus-crane/khinsider/v2/pkg/util"
 	"github.com/pterm/pterm"
 	"golang.org/x/mod/semver"
+	"io"
 	"strings"
 )
 
@@ -46,7 +46,12 @@ func GetGithubRelease(releaseFeed string) (types.RemoteIndexMetadata, error) {
 	if err != nil {
 		return release, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if err := util.LoadJSON(res.Body, &release); err != nil {
 		return release, err
 	}
@@ -59,13 +64,18 @@ func GetGithubPrerelease(releaseFeed string) (types.RemoteIndexMetadata, error) 
 	if err != nil {
 		return types.RemoteIndexMetadata{}, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if err := util.LoadJSON(res.Body, &releaseList); err != nil {
 		return types.RemoteIndexMetadata{}, err
 	}
 	var latestPrerelease types.RemoteIndexMetadata
 	for _, entry := range releaseList {
-		if entry.Prerelease == true {
+		if entry.Prerelease {
 			latestPrerelease = entry
 			break
 		}
@@ -76,20 +86,17 @@ func GetGithubPrerelease(releaseFeed string) (types.RemoteIndexMetadata, error) 
 func ValidateIndexVersion(version string, indexLocation string) string {
 	if !strings.HasPrefix(version, "v") {
 		pterm.Error.Printfln("%s index version %s doesn't start with a v.", indexLocation, version)
-		panic(errors.New(fmt.Sprintf("%s index version is invalid", indexLocation)))
+		panic(fmt.Errorf("%s index version is invalid", indexLocation))
 	}
 	versionBits := strings.Split(version, ".")
 	if len(versionBits) != 3 {
-		pterm.Error.Printf("expected %s version %s to have 3 parts. %s only has %d", indexLocation, version, len(versionBits))
-		panic(errors.New(fmt.Sprintf("%s index version is invalid", indexLocation)))
+		pterm.Error.Printf("expected %s version %s to have 3 parts. only has %d", indexLocation, version, len(versionBits))
+		panic(fmt.Errorf("%s index version is invalid", indexLocation))
 	}
 	return version
 }
 
 func IsRemoteVersionNewer(localVersion string, remoteVersion string) bool {
 	result := semver.Compare(localVersion, remoteVersion)
-	if result == -1 {
-		return true
-	}
-	return false
+	return result == -1
 }
