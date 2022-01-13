@@ -35,7 +35,7 @@ func GetAlbum(album *types.Album) {
 			lastCDNumber = track.CDNumber
 			trackNumEndLastCD = i
 		}
-		// Some of the numbering can be quite back on khinsider so we shouldn't
+		// Some of the numbering can be quite bad on khinsider so we shouldn't
 		// assume the track numbers are any good!
 		padLength := len(fmt.Sprintf("%d", album.FileCount))
 		if track.CDNumber == lastCDNumber {
