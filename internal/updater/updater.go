@@ -36,16 +36,16 @@ func isUnderHomebrew() bool {
 }
 
 func updateCommand(version string) string {
-	if isUnderHomebrew() {
+	switch {
+	case isUnderHomebrew():
 		return "brew upgrade khinsider"
-	}
-	if runtime.GOOS == "windows" {
+	case runtime.GOOS == "windows":
 		cmd := "iwr https://utf9k.net/khinsider/install.ps1 -useb | iex"
 		if version != "" {
 			cmd = fmt.Sprintf("$v=\"%s\"; ", version) + cmd
 		}
 		return cmd
-	} else {
+	default:
 		return "curl -L \"https://utf9k.net/khinsider/install.sh\" | sh -s " + version
 	}
 }
