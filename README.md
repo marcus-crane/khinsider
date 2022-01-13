@@ -4,6 +4,7 @@
 
 > Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
+* [Demo](#demo)
 * [Installation](#installation)
   * [Homebrew](#homebrew)
   * [Docker](#docker)
@@ -13,6 +14,10 @@
   * [Flags](#flags)
   * [Environment variables](#environment-variables)
 * [Special Thanks](#special-thanks)
+
+## Demo
+
+![](https://user-images.githubusercontent.com/14816406/149321924-1fc5e4b7-f458-4845-86e4-bfeaafd5e6f0.gif)
 
 ## Installation
 
