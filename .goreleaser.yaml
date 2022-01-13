@@ -30,6 +30,8 @@ dockers:
   - image_templates:
       - "docker.io/utf9k/khinsider:{{ .Version }}-amd64"
       - "ghcr.io/marcus-crane/khinsider:{{ .Version }}-amd64"
+      - "docker.io/utf9k/khinsider:latest-amd64"
+      - "ghcr.io/marcus-crane/khinsider:latest-amd64"
     skip_push: auto
     use: buildx
     dockerfile: Dockerfile
@@ -43,6 +45,8 @@ dockers:
   - image_templates:
       - "docker.io/utf9k/khinsider:{{ .Version }}-arm64v8"
       - "ghcr.io/marcus-crane/khinsider:{{ .Version }}-arm64v8"
+      - "docker.io/utf9k/khinsider:latest-arm64v8"
+      - "ghcr.io/marcus-crane/khinsider:latest-arm64v8"
     skip_push: auto
     use: buildx
     goarch: arm64
@@ -64,6 +68,16 @@ docker_manifests:
     image_templates:
       - ghcr.io/marcus-crane/khinsider:{{ .Version }}-amd64
       - ghcr.io/marcus-crane/khinsider:{{ .Version }}-arm64v8
+    skip_push: auto
+  - name_template: docker.io/utf9k/khinsider:latest
+    image_templates:
+      - docker.io/utf9k/khinsider:latest-amd64
+      - docker.io/utf9k/khinsider:latest-arm64v8
+    skip_push: auto
+  - name_template: ghcr.io/marcus-crane/khinsider:latest
+    image_templates:
+      - ghcr.io/marcus-crane/khinsider:latest-amd64
+      - ghcr.io/marcus-crane/khinsider:latest-arm64v8
     skip_push: auto
 release:
   github:
