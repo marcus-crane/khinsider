@@ -23,8 +23,8 @@ func DownloadPage(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, err
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("received a non-200 status code: %d", res.StatusCode)
 	}
 	return res, err
 }
@@ -63,17 +63,19 @@ func RetrieveAlbum(path string) (types.Album, error) {
 	var album types.Album
 	slugBits := strings.Split(path, "/")
 	album.Slug = slugBits[len(slugBits)-1]
-	albumUrl := fmt.Sprintf("%s%s", util.SiteBase, path)
+	albumUrl := fmt.Sprintf("%s/game-soundtracks/album/%s", util.SiteBase, path)
+
 	res, err := DownloadPage(albumUrl)
+	if err != nil {
+		return album, err
+	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
 			panic(err)
 		}
 	}(res.Body)
-	if err != nil {
-		return album, err
-	}
+
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return album, err
