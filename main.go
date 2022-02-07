@@ -5,10 +5,10 @@ import (
 )
 
 var (
-	version = "dev"
+	version = "v2.0.4"
 	commit  = "n/a"
 	date    = "n/a"
-	builtBy = "dev"
+	builtBy = "source"
 )
 
 func main() {

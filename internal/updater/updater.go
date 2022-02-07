@@ -5,40 +5,27 @@ package updater
 
 import (
 	"fmt"
+	"github.com/cli/safeexec"
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
-	"strings"
-
-	"github.com/cli/safeexec"
 )
 
 func isUnderHomebrew() bool {
-	flyBinary, err := os.Executable()
-	if err != nil {
-		return false
-	}
-
 	brewExe, err := safeexec.LookPath("brew")
 	if err != nil {
 		return false
 	}
 
-	brewPrefixBytes, err := exec.Command(brewExe, "--prefix").Output()
-	if err != nil {
-		return false
-	}
-
-	brewBinPrefix := filepath.Join(strings.TrimSpace(string(brewPrefixBytes)), "bin") + string(filepath.Separator)
-	return strings.HasPrefix(flyBinary, brewBinPrefix)
+	_, err = exec.Command(brewExe, "list", "khinsider").Output()
+	return err == nil
 }
 
 func updateCommand(version string) string {
 	switch {
 	case isUnderHomebrew():
-		return "brew upgrade khinsider"
+		return "brew update && brew install marcus-crane/tap/khinsider"
 	case runtime.GOOS == "windows":
 		cmd := "iwr https://utf9k.net/khinsider/install.ps1 -useb | iex"
 		if version != "" {
