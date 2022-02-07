@@ -8,6 +8,7 @@ import (
 	"golang.org/x/mod/semver"
 	"io"
 	"strings"
+	"time"
 )
 
 const (
@@ -27,7 +28,7 @@ func GetRemoteIndexVersion() string {
 func GetRemoteAppVersion() string {
 	release, err := GetGithubRelease(AppReleaseFeed)
 	if err != nil {
-		return ""
+		return "GITHUB_API_ERROR"
 	}
 	return ValidateIndexVersion(release.Version, "app")
 }
@@ -35,7 +36,7 @@ func GetRemoteAppVersion() string {
 func GetRemoteAppPrerelease() string {
 	release, err := GetGithubPrerelease(AppPrereleaseFeed)
 	if err != nil {
-		return ""
+		return "GITHUB_API_ERROR"
 	}
 	return ValidateIndexVersion(release.Version, "app")
 }
@@ -52,6 +53,15 @@ func GetGithubRelease(releaseFeed string) (types.RemoteIndexMetadata, error) {
 			panic(err)
 		}
 	}(res.Body)
+	pterm.Debug.Printfln("Rate limit remaining: %s/%s",
+		res.Header.Get("x-ratelimit-remaining"),
+		res.Header.Get("x-ratelimit-limit"),
+	)
+	if res.StatusCode == 403 {
+		rateLimitReset := time.UnixMilli(1644200697 * 1000)
+		pterm.Debug.Printfln("Rate limit resets at %s", rateLimitReset.String())
+		return release, fmt.Errorf("rate limited by github api")
+	}
 	if err := util.LoadJSON(res.Body, &release); err != nil {
 		return release, err
 	}
@@ -70,6 +80,15 @@ func GetGithubPrerelease(releaseFeed string) (types.RemoteIndexMetadata, error) 
 			panic(err)
 		}
 	}(res.Body)
+	pterm.Debug.Printfln("Rate limit remaining: %s/%s",
+		res.Header.Get("x-ratelimit-remaining"),
+		res.Header.Get("x-ratelimit-limit"),
+	)
+	if res.StatusCode == 403 {
+		rateLimitReset := time.UnixMilli(1644200697 * 1000)
+		pterm.Debug.Printfln("Rate limit resets at %s", rateLimitReset.String())
+		return types.RemoteIndexMetadata{}, fmt.Errorf("rate limited by github api")
+	}
 	if err := util.LoadJSON(res.Body, &releaseList); err != nil {
 		return types.RemoteIndexMetadata{}, err
 	}
