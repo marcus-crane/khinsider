@@ -8,7 +8,7 @@ var (
 	version = "v2.0.4"
 	commit  = "n/a"
 	date    = "n/a"
-	builtBy = "go install"
+	builtBy = "source"
 )
 
 func main() {
