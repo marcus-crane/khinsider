@@ -41,8 +41,15 @@ func CheckForUpdates(c *cli.Context, currentVersion string, prerelease bool) (bo
 func UpdateAction(c *cli.Context, currentVersion string, prerelease bool) error {
 	releaseAvailable, remoteVersion := CheckForUpdates(c, currentVersion, prerelease)
 	pterm.Debug.Printfln("Release is available: %t. Remote version is %s", releaseAvailable, remoteVersion)
+	if strings.Contains(currentVersion, "-DEV") {
+		pterm.Error.Println("You can't run updates when running a dev build")
+		return nil
+	}
 	if !releaseAvailable && !isUpdaterDisabled(c) {
 		pterm.Info.Printfln("Sorry, no updates are available. The latest version is %s and you're on %s", remoteVersion, currentVersion)
+		return nil
+	}
+	if isUpdaterDisabled(c) {
 		return nil
 	}
 	return updater.UpgradeInPlace(c.App.Writer, c.App.ErrWriter, remoteVersion)
