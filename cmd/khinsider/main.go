@@ -40,7 +40,17 @@ func Execute(buildInfo BuildInfo) {
 		},
 		Usage: "easily fetch videogame soundtracks from downloads.khinsider.com",
 		Flags: []cli.Flag{
-			&cli.BoolFlag{Name: "debug", Aliases: []string{"d"}},
+			&cli.BoolFlag{
+				Name:    "debug",
+				Aliases: []string{"d"},
+			},
+			&cli.BoolFlag{
+				Name:    "no-updates",
+				Aliases: []string{"n"},
+				Value:   false,
+				Usage:   "Disable checks for updates to khinsider (env: KHINSIDER_NO_UPDATE)",
+				EnvVars: []string{"CI", "KHINSIDER_NO_UPDATE"},
+			},
 		},
 		Before: func(c *cli.Context) error {
 			if c.Bool("debug") {
