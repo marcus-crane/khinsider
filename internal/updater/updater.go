@@ -19,10 +19,7 @@ func isUnderHomebrew() bool {
 	}
 
 	_, err = exec.Command(brewExe, "list", "khinsider").Output()
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func updateCommand(version string) string {
