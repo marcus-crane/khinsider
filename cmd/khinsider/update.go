@@ -43,6 +43,7 @@ func UpdateAction(c *cli.Context, currentVersion string, prerelease bool) error 
 	pterm.Debug.Printfln("Release is available: %t. Remote version is %s", releaseAvailable, remoteVersion)
 	if !releaseAvailable && !isUpdaterDisabled() {
 		pterm.Info.Printfln("Sorry, no updates are available. The latest version is %s and you're on %s", remoteVersion, currentVersion)
+		return nil
 	}
 	return updater.UpgradeInPlace(c.App.Writer, c.App.ErrWriter, remoteVersion)
 }
