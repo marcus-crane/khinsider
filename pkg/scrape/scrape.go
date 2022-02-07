@@ -59,11 +59,10 @@ func GetResultsForLetter(letter string) (types.SearchResults, error) {
 	return results, nil
 }
 
-func RetrieveAlbum(path string) (types.Album, error) {
+func RetrieveAlbum(slug string) (types.Album, error) {
 	var album types.Album
-	slugBits := strings.Split(path, "/")
-	album.Slug = slugBits[len(slugBits)-1]
-	albumUrl := fmt.Sprintf("%s/game-soundtracks/album/%s", util.SiteBase, path)
+	album.Slug = slug
+	albumUrl := fmt.Sprintf("%s/game-soundtracks/album/%s", util.SiteBase, slug)
 
 	res, err := DownloadPage(albumUrl)
 	if err != nil {
