@@ -8,6 +8,7 @@ import (
 	"github.com/marcus-crane/khinsider/v2/pkg/search"
 	"github.com/marcus-crane/khinsider/v2/pkg/update"
 	"github.com/pterm/pterm"
+	"strings"
 )
 
 func BeforeSearch() error {
@@ -53,6 +54,17 @@ func DownloadAction(albumSlug string) error {
 	if albumSlug == "" {
 		pterm.Error.Println("Please enter the slug for a valid album")
 		return errors.New("no album slug provided")
+	}
+	// At present, the index captures entries as URL paths so eg;
+	// /game-soundtrack/album/<slug> whereas the user downloads
+	// and album by providing just the slug. We could update the
+	// index to just save slugs but this would break compatibility
+	// with earlier versions so instead we just strip the index
+	// entries down to their slug. Both searching and direct slug
+	// download pass through this function so they need to be consistent
+	if strings.Contains(albumSlug, "/") {
+		slugBits := strings.Split(albumSlug, "/")
+		albumSlug = slugBits[len(slugBits)-1]
 	}
 	album, err := scrape.RetrieveAlbum(albumSlug)
 	if err != nil {
