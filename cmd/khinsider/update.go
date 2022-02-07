@@ -5,6 +5,7 @@ import (
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 	"os"
+	"strings"
 
 	"github.com/marcus-crane/khinsider/v2/pkg/update"
 )
@@ -14,7 +15,7 @@ func isUpdaterDisabled() bool {
 }
 
 func CheckForUpdates(c *cli.Context, currentVersion string, prerelease bool) (bool, string) {
-	if isUpdaterDisabled() && c.Command.Name != "update" {
+	if isUpdaterDisabled() && c.Command.Name != "update" || strings.Contains(currentVersion, "-DEV") {
 		pterm.Debug.Println("Updater is disabled. Skipping update check.")
 		return false, ""
 	}
