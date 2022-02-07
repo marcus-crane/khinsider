@@ -16,7 +16,7 @@ import (
 )
 
 func isUnderHomebrew() bool {
-	flyBinary, err := os.Executable()
+	khinsiderBinary, err := os.Executable()
 	if err != nil {
 		return false
 	}
@@ -32,13 +32,13 @@ func isUnderHomebrew() bool {
 	}
 
 	brewBinPrefix := filepath.Join(strings.TrimSpace(string(brewPrefixBytes)), "bin") + string(filepath.Separator)
-	return strings.HasPrefix(flyBinary, brewBinPrefix)
+	return strings.HasPrefix(khinsiderBinary, brewBinPrefix)
 }
 
 func updateCommand(version string) string {
 	switch {
 	case isUnderHomebrew():
-		return "brew upgrade khinsider"
+		return "brew update && brew install marcus-crane/tap/khinsider"
 	case runtime.GOOS == "windows":
 		cmd := "iwr https://utf9k.net/khinsider/install.ps1 -useb | iex"
 		if version != "" {
