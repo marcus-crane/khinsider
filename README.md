@@ -1,6 +1,6 @@
 # khinsider
 
-![](https://img.shields.io/badge/version-v2.0.0-green)
+![](https://img.shields.io/badge/version-v2.0.4-green)
 
 > Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
