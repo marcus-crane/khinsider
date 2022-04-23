@@ -2,11 +2,12 @@ package scrape
 
 import (
 	"fmt"
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/marcus-crane/khinsider/v2/pkg/util"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pterm/pterm"
@@ -29,7 +30,7 @@ func DownloadPage(url string) (*http.Response, error) {
 	return res, err
 }
 
-func GetResultsForLetter(letter string) (types.SearchResults, error) {
+func GetResultsForLetter(letter string) (types.SearchResults, bool, error) {
 	url := fmt.Sprintf("%s%s", LetterBase, letter)
 	res, err := DownloadPage(url)
 	defer func(Body io.ReadCloser) {
@@ -39,24 +40,33 @@ func GetResultsForLetter(letter string) (types.SearchResults, error) {
 		}
 	}(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	results := make(types.SearchResults)
-	doc.Find("#EchoTopic p[align='left'] a").Each(func(i int, s *goquery.Selection) {
-		title := s.Text()
-		results[title] = "#"
-		trackUrl, exists := s.Attr("href")
-		if exists {
-			results[title] = trackUrl
-		} else {
-			results[title] = "#"
+	doc.Find("table.albumList tr").Each(func(i int, s *goquery.Selection) {
+		if i == 0 {
+			return
 		}
+		s.Find("td a").Each(func(i int, t *goquery.Selection) {
+			if i == 1 {
+				title := strings.TrimSpace(t.Text())
+				results[title] = "#"
+				trackUrl, exists := t.Attr("href")
+				if exists {
+					results[title] = trackUrl
+				}
+			}
+		})
 	})
-	return results, nil
+	more := false
+	doc.Find(".pagination-next a").Each(func(i int, s *goquery.Selection) {
+		_, more = s.Attr("href")
+	})
+	return results, more, nil
 }
 
 func RetrieveAlbum(slug string) (types.Album, error) {

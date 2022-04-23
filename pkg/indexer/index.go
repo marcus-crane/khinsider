@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/marcus-crane/khinsider/v2/pkg/update"
-	"github.com/pterm/pterm"
 	"io"
 	"net/http"
 	"os"
@@ -13,6 +11,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/marcus-crane/khinsider/v2/pkg/update"
+	"github.com/pterm/pterm"
 
 	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
 	"github.com/marcus-crane/khinsider/v2/pkg/types"
@@ -60,7 +61,28 @@ func BuildIndex() error {
 	p, _ := pterm.DefaultProgressbar.WithTotal(len(letters)).WithTitle("Building indexer").WithRemoveWhenDone(true).Start()
 	for _, letter := range letters {
 		p.UpdateTitle("Downloading results for " + letter)
-		letterResults, err := scrape.GetResultsForLetter(letter)
+		page := 1
+		letterResults, more, err := scrape.GetResultsForLetter(letter)
+		for {
+			if more {
+				page += 1
+				letterUrl := fmt.Sprintf("%s?page=%d", letter, page)
+				p.UpdateTitle(fmt.Sprintf("~ Downloading Page %d of %s", page, letter))
+				results, evenMore, err := scrape.GetResultsForLetter(letterUrl)
+				if err != nil {
+					panic(err)
+				}
+				for k, v := range results {
+					letterResults[k] = v
+				}
+				if !evenMore {
+					break
+				}
+				more = evenMore
+			} else {
+				break
+			}
+		}
 		if err != nil {
 			panic(err)
 		}
