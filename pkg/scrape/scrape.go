@@ -54,10 +54,10 @@ func GetResultsForLetter(letter string) (types.SearchResults, bool, error) {
 		s.Find("td a").Each(func(i int, t *goquery.Selection) {
 			if i == 1 {
 				title := strings.TrimSpace(t.Text())
-				results[title] = "#"
 				trackUrl, exists := t.Attr("href")
 				if exists {
-					results[title] = trackUrl
+					jointKey := fmt.Sprintf("%s (%s)", title, strings.ReplaceAll(trackUrl, "/game-soundtracks/album/", ""))
+					results[jointKey] = trackUrl
 				}
 			}
 		})
