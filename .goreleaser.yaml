@@ -87,7 +87,7 @@ release:
     name: khinsider
   prerelease: auto
 brews:
-  - tap:
+  - repository:
       owner: marcus-crane
       name: homebrew-tap
       branch: main
