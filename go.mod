@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/cli/safeexec v1.0.0
+	github.com/cli/safeexec v1.0.1
 	github.com/pterm/pterm v0.12.41
 	github.com/urfave/cli/v2 v2.25.7
 	golang.org/x/mod v0.5.1
