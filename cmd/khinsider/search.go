@@ -2,13 +2,14 @@ package khinsider
 
 import (
 	"errors"
-	"github.com/marcus-crane/khinsider/v2/pkg/download"
-	"github.com/marcus-crane/khinsider/v2/pkg/indexer"
-	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
-	"github.com/marcus-crane/khinsider/v2/pkg/search"
-	"github.com/marcus-crane/khinsider/v2/pkg/update"
-	"github.com/pterm/pterm"
 	"strings"
+
+	"github.com/marcus-crane/khinsider/v3/pkg/download"
+	"github.com/marcus-crane/khinsider/v3/pkg/indexer"
+	"github.com/marcus-crane/khinsider/v3/pkg/scrape"
+	"github.com/marcus-crane/khinsider/v3/pkg/search"
+	"github.com/marcus-crane/khinsider/v3/pkg/update"
+	"github.com/pterm/pterm"
 )
 
 func BeforeSearch() error {

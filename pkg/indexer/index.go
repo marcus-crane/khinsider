@@ -12,12 +12,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/update"
+	"github.com/marcus-crane/khinsider/v3/pkg/update"
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
+	"github.com/marcus-crane/khinsider/v3/pkg/scrape"
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/util"
 )
 
 const (

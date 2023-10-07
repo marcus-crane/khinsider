@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
+	"github.com/marcus-crane/khinsider/v3/pkg/util"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
 )
 
 const (

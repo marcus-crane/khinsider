@@ -3,14 +3,15 @@ package download
 import (
 	"errors"
 	"fmt"
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
-	"github.com/pterm/pterm"
 	"io"
 	"io/fs"
 	"os"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/util"
+	"github.com/pterm/pterm"
 )
 
 func GetAlbum(album *types.Album) {

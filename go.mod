@@ -1,6 +1,6 @@
-module github.com/marcus-crane/khinsider/v2
+module github.com/marcus-crane/khinsider/v3
 
-go 1.20
+go 1.21
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4

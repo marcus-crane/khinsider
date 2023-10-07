@@ -2,13 +2,14 @@ package update
 
 import (
 	"fmt"
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
-	"github.com/pterm/pterm"
-	"golang.org/x/mod/semver"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/util"
+	"github.com/pterm/pterm"
+	"golang.org/x/mod/semver"
 )
 
 const (

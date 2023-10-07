@@ -1,12 +1,13 @@
 package khinsider
 
 import (
-	"github.com/marcus-crane/khinsider/v2/internal/updater"
-	"github.com/pterm/pterm"
-	"github.com/urfave/cli/v2"
 	"strings"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/update"
+	"github.com/marcus-crane/khinsider/v3/internal/updater"
+	"github.com/pterm/pterm"
+	"github.com/urfave/cli/v2"
+
+	"github.com/marcus-crane/khinsider/v3/pkg/update"
 )
 
 func isUpdaterDisabled(c *cli.Context) bool {

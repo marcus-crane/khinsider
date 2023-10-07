@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/marcus-crane/khinsider/v2/cmd/khinsider"
+	"github.com/marcus-crane/khinsider/v3/cmd/khinsider"
 )
 
 var (
-	version = "v2.0.7"
+	version = "v3.0.0"
 	commit  = "n/a"
 	date    = "n/a"
 	builtBy = "source"
