@@ -40,29 +40,15 @@ func GetAlbum(album *types.Album) {
 		panic(err)
 	}
 	pterm.Success.Printfln("Successfully created %s", directoryPath)
-	lastCDNumber := ""
-	trackNumEndLastCD := 0
-	for i, track := range album.Tracks {
-		trackFmt := track.Name
-		// When we hit a new CD, we'll reset the numbering and start again from
-		// zero. We need to make sure we don't set the wrong padding though.
-		if track.CDNumber != lastCDNumber {
-			lastCDNumber = track.CDNumber
-			trackNumEndLastCD = i
-		}
+	for _, track := range album.Tracks {
+		trackFmt := track.Title
 		// Some of the numbering can be quite bad on khinsider so we shouldn't
 		// assume the track numbers are any good!
-		padLength := len(fmt.Sprintf("%d", album.FileCount))
-		if track.CDNumber == lastCDNumber {
-			padLength = 2 // Assume most CDs aren't any bigger than 100 tracks
-		}
-		trackCount := i + 1
-		if trackNumEndLastCD != 0 {
-			trackCount = trackCount - trackNumEndLastCD
-		}
-		trackFmt = fmt.Sprintf("%0*d %s", padLength, trackCount, trackFmt)
-		if track.CDNumber != "" {
-			trackFmt = fmt.Sprintf("%sx%s", track.CDNumber, trackFmt)
+		padLength := len(fmt.Sprintf("%d", album.Total.Tracks))
+		trackFmt = fmt.Sprintf("%0*d %s", padLength, track.TrackNumber, trackFmt)
+		if track.DiscNumber != 0 {
+			// TODO: Padding for 10+ discs
+			trackFmt = fmt.Sprintf("%dx%s", track.DiscNumber, trackFmt)
 		}
 		err := SaveAudioFile(track, trackFmt, directoryPath)
 		if err != nil {
@@ -77,8 +63,8 @@ func GetAlbum(album *types.Album) {
 
 func SaveAudioFile(track types.Track, fileName string, saveLocation string) error {
 	trackFile := fmt.Sprintf("%s/%s.mp3", saveLocation, normaliseFileName(fileName))
-	pterm.Debug.Printfln("Downloading %s", track.URL)
-	res, err := util.RequestFile(track.URL)
+	pterm.Debug.Printfln("Downloading %s", track.SourceMP3)
+	res, err := util.RequestFile(track.SourceMP3)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
@@ -86,7 +72,7 @@ func SaveAudioFile(track types.Track, fileName string, saveLocation string) erro
 		}
 	}(res.Body)
 	if err != nil {
-		pterm.Debug.Printfln("There was an error downloading %s", track.URL)
+		pterm.Debug.Printfln("There was an error downloading %s", track.SourceMP3)
 		return err
 	}
 	writer, err := os.Create(trackFile)

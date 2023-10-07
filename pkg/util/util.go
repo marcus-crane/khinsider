@@ -4,15 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/pterm/pterm"
-)
-
-const (
-	SiteBase = "https://downloads.khinsider.com"
 )
 
 type Reader struct {
@@ -42,7 +37,7 @@ func (r *Reader) Close() (err error) {
 }
 
 func MakeRequest(link string, headers http.Header) (*http.Response, error) {
-	headers.Add("User-Agent", "khinsider/2.0 <https://github.com/marcus-crane/khinsider>")
+	headers.Add("User-Agent", "khinsider/3.0 <https://github.com/marcus-crane/khinsider>")
 	remoteURL, err := url.Parse(link)
 	if err != nil {
 		panic(err)
@@ -73,7 +68,7 @@ func RequestFile(link string) (*http.Response, error) {
 }
 
 func LoadJSON(file io.Reader, i interface{}) error {
-	fileBytes, _ := ioutil.ReadAll(file)
+	fileBytes, _ := io.ReadAll(file)
 	err := json.Unmarshal(fileBytes, &i)
 	if err != nil {
 		pterm.Error.Println("Failed to load JSON")

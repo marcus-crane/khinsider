@@ -69,9 +69,9 @@ func Execute(buildInfo BuildInfo) {
 				Name:    "search",
 				Aliases: []string{"s"},
 				Usage:   "search for an album to download",
-				Before: func(c *cli.Context) error {
-					return BeforeSearch()
-				},
+				// Before: func(c *cli.Context) error {
+				// 	return BeforeSearch()
+				// },
 				Action: func(c *cli.Context) error {
 					return SearchAction()
 				},
@@ -82,15 +82,6 @@ func Execute(buildInfo BuildInfo) {
 				Usage:   "download an album given a slug",
 				Action: func(c *cli.Context) error {
 					return DownloadAction(c.Args().First())
-				},
-			},
-			{
-				Name:    "index",
-				Aliases: []string{"i"},
-				Usage:   "generates a local index of all khinsider content",
-				Hidden:  true,
-				Action: func(c *cli.Context) error {
-					return IndexAction()
 				},
 			},
 			{

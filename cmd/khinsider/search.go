@@ -8,26 +8,11 @@ import (
 	"github.com/marcus-crane/khinsider/v3/pkg/indexer"
 	"github.com/marcus-crane/khinsider/v3/pkg/scrape"
 	"github.com/marcus-crane/khinsider/v3/pkg/search"
-	"github.com/marcus-crane/khinsider/v3/pkg/update"
 	"github.com/pterm/pterm"
 )
 
 func BeforeSearch() error {
-	indexExists := indexer.CheckIndexExists()
-	if indexExists {
-		pterm.Debug.Println("Checking for updates")
-		localVersion := indexer.GetLocalIndexVersion()
-		remoteVersion := update.GetRemoteIndexVersion()
-		updateAvailable := update.IsRemoteVersionNewer(localVersion, remoteVersion)
-		if updateAvailable {
-			err := indexer.DownloadIndex()
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	pterm.Warning.Println("Search index doesn't exist! Fetching the latest version.")
+	pterm.Warning.Println("Fetching the latest search index.")
 	err := indexer.DownloadIndex()
 	if err != nil {
 		return err
@@ -40,7 +25,7 @@ func SearchAction() error {
 	if err != nil {
 		panic(err)
 	}
-	albumSlug, err := search.FilterAlbumList(index.Entries)
+	albumSlug, err := search.FilterAlbumList(index)
 	if err != nil {
 		panic(err)
 	}
@@ -72,13 +57,5 @@ func DownloadAction(albumSlug string) error {
 		panic(err)
 	}
 	download.GetAlbum(&album)
-	return nil
-}
-
-func IndexAction() error {
-	err := indexer.BuildIndex()
-	if err != nil {
-		panic(err)
-	}
 	return nil
 }
