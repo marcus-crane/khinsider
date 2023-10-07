@@ -1,19 +1,19 @@
 # khinsider
 
-![](https://img.shields.io/badge/version-v2.0.4-green)
+![](https://img.shields.io/badge/version-v3.0.0_alpha1-green)
 
 > Easily fetch videogame soundtracks from [downloads.khinsider.com](https://downloads.khinsider.com)
 
-* [Demo](#demo)
-* [Installation](#installation)
-  * [Homebrew](#homebrew)
-  * [Docker](#docker)
-  * [Go](#go)
-  * [Binaries](#binaries)
-* [Usage](#usage)
-  * [Flags](#flags)
-  * [Environment variables](#environment-variables)
-* [Special Thanks](#special-thanks)
+- [khinsider](#khinsider)
+  - [Demo](#demo)
+  - [Installation](#installation)
+    - [Homebrew](#homebrew)
+    - [Docker](#docker)
+    - [Binaries](#binaries)
+  - [Usage](#usage)
+    - [Flags](#flags)
+    - [Environment variables](#environment-variables)
+  - [Special thanks](#special-thanks)
 
 ## Demo
 
