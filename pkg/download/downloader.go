@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/marcus-crane/khinsider/v3/pkg/types"
@@ -17,8 +16,7 @@ import (
 func GetAlbum(album *types.Album) {
 	usrHome, _ := os.UserHomeDir()
 	downloadFolder := fmt.Sprintf("%s/Downloads", usrHome) // TODO: Offer a configuration option
-	normalisedSlug := strings.ReplaceAll(album.Slug, ".", "")
-	directoryPath := fmt.Sprintf("%s/%s", downloadFolder, normalisedSlug)
+	directoryPath := fmt.Sprintf("%s/%s", downloadFolder, normaliseFileName(album.Title))
 	// TODO: This should be checked before download since it takes ages to get here
 	_, err := os.Stat(directoryPath)
 	if !errors.Is(err, fs.ErrNotExist) && err != nil {
@@ -40,15 +38,25 @@ func GetAlbum(album *types.Album) {
 		panic(err)
 	}
 	pterm.Success.Printfln("Successfully created %s", directoryPath)
+	prevDisc := int32(0)
+	trackPadLen := len(fmt.Sprintf("%d", album.Total.Tracks))
+	discPadLen := len(fmt.Sprintf("%d", album.Tracks[len(album.Tracks)-1].DiscNumber))
 	for _, track := range album.Tracks {
+		currDisc := track.DiscNumber
+		if currDisc != 0 && currDisc > prevDisc {
+			highestTrackNumForDisc := int32(0)
+			for _, track := range album.Tracks {
+				if track.DiscNumber == currDisc {
+					highestTrackNumForDisc = track.TrackNumber
+				}
+			}
+			trackPadLen = len(fmt.Sprintf("%d", highestTrackNumForDisc))
+		}
 		trackFmt := track.Title
-		// Some of the numbering can be quite bad on khinsider so we shouldn't
-		// assume the track numbers are any good!
-		padLength := len(fmt.Sprintf("%d", album.Total.Tracks))
-		trackFmt = fmt.Sprintf("%0*d %s", padLength, track.TrackNumber, trackFmt)
+		trackFmt = fmt.Sprintf("%0*d %s", trackPadLen, track.TrackNumber, trackFmt)
 		if track.DiscNumber != 0 {
 			// TODO: Padding for 10+ discs
-			trackFmt = fmt.Sprintf("%dx%s", track.DiscNumber, trackFmt)
+			trackFmt = fmt.Sprintf("%0*dx%s", discPadLen, track.DiscNumber, trackFmt)
 		}
 		err := SaveAudioFile(track, trackFmt, directoryPath)
 		if err != nil {

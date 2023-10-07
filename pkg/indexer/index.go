@@ -59,14 +59,12 @@ func DownloadIndex() error {
 			panic(err)
 		}
 	}(res.Body)
-	p, _ := pterm.DefaultProgressbar.WithTotal(int(res.ContentLength)).WithTitle("Downloading index").WithRemoveWhenDone(true).WithShowPercentage(true).Start()
-	reader := util.NewBarProxyReader(res.Body, p)
 	if res.StatusCode == http.StatusOK {
 		pterm.Debug.Printfln("Retrieved index with status code of %d", res.StatusCode)
 		indexPath := getCachePath(LocalIndex)
 		createPathIfNotExists(indexPath)
 		var index types.SearchResults
-		if err := util.LoadJSON(reader, &index); err != nil {
+		if err := util.LoadJSON(res.Body, &index); err != nil {
 			panic(err)
 		}
 		err = SaveIndex(index)

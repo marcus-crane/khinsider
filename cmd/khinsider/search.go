@@ -25,11 +25,11 @@ func SearchAction() error {
 	if err != nil {
 		panic(err)
 	}
-	albumSlug, err := search.FilterAlbumList(index)
+	hints, err := search.FilterAlbumList(index)
 	if err != nil {
 		panic(err)
 	}
-	err = DownloadAction(albumSlug)
+	err = DownloadAction(hints.Slug)
 	if err != nil {
 		pterm.Error.Println("Failed to download album")
 	}

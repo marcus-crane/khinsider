@@ -1,6 +1,16 @@
 package types
 
-type SearchResults map[string]string
+type SearchResults map[string]AlbumHints
+
+type AlbumHints struct {
+	Slug       string `json:"s"`
+	MP3Exists  bool   `json:"m"`
+	FlacExists bool   `json:"f"`
+	Year       int32  `json:"y"`
+	Genre      string `json:"g"`
+	TrackCount int32  `json:"c"`
+	DiscCount  int32  `json:"d"`
+}
 
 type Album struct {
 	Title             string            `json:"title"`

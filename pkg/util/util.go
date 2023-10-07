@@ -71,7 +71,7 @@ func LoadJSON(file io.Reader, i interface{}) error {
 	fileBytes, _ := io.ReadAll(file)
 	err := json.Unmarshal(fileBytes, &i)
 	if err != nil {
-		pterm.Error.Println("Failed to load JSON")
+		pterm.Error.Printf("Failed to load JSON: %+v\n", err)
 		return errors.New("failed to load JSON")
 	}
 	return nil
