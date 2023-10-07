@@ -9,20 +9,16 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strconv"
-	"strings"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/update"
 	"github.com/pterm/pterm"
 
-	"github.com/marcus-crane/khinsider/v2/pkg/scrape"
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
-	"github.com/marcus-crane/khinsider/v2/pkg/util"
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/util"
 )
 
 const (
-	LocalIndex  = "index.json"
-	RemoteIndex = "https://raw.githubusercontent.com/marcus-crane/khinsider-index/main/index.json"
+	LocalIndex  = "index-v3.json"
+	RemoteIndex = "https://khindex.utf9k.net/index.json"
 )
 
 func getCachePath(filename string) string {
@@ -51,75 +47,6 @@ func CheckIndexExists() bool {
 	return true
 }
 
-func BuildIndex() error {
-	results := make(types.SearchResults)
-	letters := []string{"#"}
-	for i := 'A'; i <= 'Z'; i++ {
-		letter := fmt.Sprintf("%c", i)
-		letters = append(letters, letter)
-	}
-	p, _ := pterm.DefaultProgressbar.WithTotal(len(letters)).WithTitle("Building indexer").WithRemoveWhenDone(true).Start()
-	for _, letter := range letters {
-		p.UpdateTitle("Downloading results for " + letter)
-		page := 1
-		letterResults, more, err := scrape.GetResultsForLetter(letter)
-		for {
-			if more {
-				page += 1
-				letterUrl := fmt.Sprintf("%s?page=%d", letter, page)
-				p.UpdateTitle(fmt.Sprintf("~ Downloading Page %d of %s", page, letter))
-				results, evenMore, err := scrape.GetResultsForLetter(letterUrl)
-				if err != nil {
-					panic(err)
-				}
-				for k, v := range results {
-					letterResults[k] = v
-				}
-				if !evenMore {
-					break
-				}
-				more = evenMore
-			} else {
-				break
-			}
-		}
-		if err != nil {
-			panic(err)
-		}
-		for k, v := range letterResults {
-			results[k] = v
-		}
-		p.Increment()
-	}
-	index := types.SearchIndex{
-		IndexVersion: IncrementIndexVersion(),
-		Entries:      results,
-	}
-	err := SaveIndex(index)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func GetLocalIndexVersion() string {
-	index, err := LoadLocalIndex()
-	if err != nil {
-		panic(err)
-	}
-	return update.ValidateIndexVersion(index.IndexVersion, "local")
-}
-
-func IncrementIndexVersion() string {
-	remoteVersion := update.GetRemoteIndexVersion()
-	semverBits := strings.Split(remoteVersion, ".")
-	patch := semverBits[len(semverBits)-1]
-	patchAsNumber, _ := strconv.Atoi(patch)
-	patch = strconv.Itoa(patchAsNumber + 1)
-	semverBits[len(semverBits)-1] = patch
-	return strings.Join(semverBits, ".")
-}
-
 func DownloadIndex() error {
 	pterm.Info.Printfln("Downloading latest search index. This lets you search all of khinsider locally.")
 	res, err := util.RequestJSON(RemoteIndex)
@@ -138,7 +65,7 @@ func DownloadIndex() error {
 		pterm.Debug.Printfln("Retrieved index with status code of %d", res.StatusCode)
 		indexPath := getCachePath(LocalIndex)
 		createPathIfNotExists(indexPath)
-		var index types.SearchIndex
+		var index types.SearchResults
 		if err := util.LoadJSON(reader, &index); err != nil {
 			panic(err)
 		}
@@ -151,7 +78,7 @@ func DownloadIndex() error {
 	return fmt.Errorf("received a non-200 status code: %d", res.StatusCode)
 }
 
-func LoadLocalIndex() (types.SearchIndex, error) {
+func LoadLocalIndex() (types.SearchResults, error) {
 	file, err := os.Open(getCachePath(LocalIndex))
 	if err != nil {
 		panic(err)
@@ -162,18 +89,14 @@ func LoadLocalIndex() (types.SearchIndex, error) {
 			panic(err)
 		}
 	}(file)
-	var index types.SearchIndex
+	var index types.SearchResults
 	if err := util.LoadJSON(file, &index); err != nil {
 		return index, nil
 	}
 	return index, err
 }
 
-func SaveIndex(index types.SearchIndex) error {
-	if len(index.Entries) == 0 {
-		pterm.Error.Println("It appears you have an empty index which shouldn't be possible. TODO: Build a bug report")
-		return errors.New("index is empty which there is nothing to search through. that shouldn't be possible")
-	}
+func SaveIndex(index types.SearchResults) error {
 	output, err := json.MarshalIndent(index, "", "  ")
 	if err != nil {
 		pterm.Error.Println("It appears you have a corrupted index! TODO: Build a bug report")

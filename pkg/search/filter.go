@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/marcus-crane/khinsider/v2/pkg/types"
+	"github.com/marcus-crane/khinsider/v3/pkg/types"
 )
 
 func FilterAlbumList(list types.SearchResults) (string, error) {
