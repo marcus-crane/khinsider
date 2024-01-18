@@ -81,7 +81,7 @@ func Execute(buildInfo BuildInfo) {
 				Aliases: []string{"a"},
 				Usage:   "download an album given a slug",
 				Action: func(c *cli.Context) error {
-					return DownloadAction(c.Args().First())
+					return DownloadAction([]string{c.Args().First()})
 				},
 			},
 			{

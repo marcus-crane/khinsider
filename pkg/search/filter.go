@@ -2,42 +2,77 @@ package search
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/ktr0731/go-fuzzyfinder"
+	"github.com/marcus-crane/khinsider/v3/pkg/scrape"
 	"github.com/marcus-crane/khinsider/v3/pkg/types"
 )
 
-func FilterAlbumList(list types.SearchResults) (types.AlbumHints, error) {
-	keys := make([]string, 0, len(list))
+type item struct {
+	Title string
+	Meta  types.AlbumHints
+}
+
+func secondsToMinutes(inSeconds int32) string {
+	minutes := inSeconds / 60
+	seconds := inSeconds % 60
+	str := fmt.Sprintf("%d:%d", minutes, seconds)
+	return str
+}
+
+func FilterAlbumList(list types.SearchResults) ([]string, error) {
+	filterList := []item{}
 	for k, v := range list {
-		kFmt := fmt.Sprintf("%s ~ %d", k, v.Year)
-		if v.DiscCount > 0 {
-			kFmt = fmt.Sprintf("%s | D%d", kFmt, v.DiscCount)
-		}
-		kFmt = fmt.Sprintf("%s | T%d | %s", kFmt, v.TrackCount, v.Genre)
-		if v.MP3Exists {
-			kFmt = fmt.Sprintf("%s | [MP3]", kFmt)
-		}
-		if v.FlacExists {
-			kFmt = fmt.Sprintf("%s [FLAC]", kFmt)
-		}
-		keys = append(keys, kFmt)
+		filterList = append(filterList, item{Title: k, Meta: v})
 	}
-	sort.Strings(keys)
+	sort.SliceStable(filterList, func(i, j int) bool {
+		return strings.ToLower(filterList[i].Title) < strings.ToLower(filterList[j].Title)
+	})
+	idx, err := fuzzyfinder.FindMulti(
+		filterList,
+		func(i int) string {
+			return filterList[i].Title
+		},
+		fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
+			if i == -1 {
+				return ""
+			}
+			album, err := scrape.RetrieveAlbum(filterList[i].Meta.Slug)
+			if err != nil {
+				return "Failed to retrieve album metadata"
+			}
+			trackList := ""
+			for _, track := range album.Tracks {
+				trackList += fmt.Sprintf("%d. %s (%s)\n", track.TrackNumber, track.Title, secondsToMinutes(track.Runtime))
+			}
+			return fmt.Sprintf(`%s (%d)
+			MP3 Available: %t
+			FLAC Available: %t
+			Genre: %s
+			Track Count: %d
+			Disc Count: %d
 
-	prompt := &survey.Select{
-		Message: "Choose an album:",
-		Options: keys,
-	}
-
-	var result string
-	err := survey.AskOne(prompt, &result, survey.WithPageSize(25))
-
+			Tracks:
+			%s
+			`,
+				filterList[i].Title,
+				filterList[i].Meta.Year,
+				filterList[i].Meta.MP3Exists,
+				filterList[i].Meta.FlacExists,
+				filterList[i].Meta.Genre,
+				filterList[i].Meta.TrackCount,
+				filterList[i].Meta.DiscCount,
+				trackList)
+		}))
 	if err != nil {
-		return types.AlbumHints{}, err
+		log.Fatal(err)
 	}
-	title := strings.Split(result, " ~")[0]
-	return list[title], nil
+	selectedSlugs := []string{}
+	for _, i := range idx {
+		selectedSlugs = append(selectedSlugs, filterList[i].Meta.Slug)
+	}
+	return selectedSlugs, nil
 }

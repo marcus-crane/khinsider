@@ -7,8 +7,6 @@ import (
 
 	"github.com/marcus-crane/khinsider/v3/pkg/util"
 
-	"github.com/pterm/pterm"
-
 	"github.com/marcus-crane/khinsider/v3/pkg/types"
 )
 
@@ -46,6 +44,5 @@ func RetrieveAlbum(slug string) (types.Album, error) {
 	if err != nil {
 		return album, err
 	}
-	pterm.Success.Printfln("Retrieved metadata for %s (%d tracks)", album.Title, album.Total.Tracks)
 	return album, nil
 }
